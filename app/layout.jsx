@@ -4,7 +4,12 @@ import { SupabaseProvider } from './components/SupabaseProvider'
 export const metadata = {
   title: 'Kerja Monggo - Lowongan Kerja Indonesia',
   description: 'Platform pencarian lowongan kerja terbaik di Indonesia. Temukan pekerjaan impian Anda atau cari kandidat terbaik.',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({ children }) {
