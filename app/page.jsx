@@ -63,7 +63,7 @@ export default function Home() {
         }}
       />
 
-      <BottomTab onSearchClick={() => setIsFilterPanelOpen(true)} />
+      <BottomTab />
     </>
   )
 }
