@@ -35,15 +35,15 @@ export default function Home() {
       <Header />
       <Banner />
 
-      <main className="flex-1 bg-[#fafafa] relative">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+      <main style={{flex: 1, background: '#fafafa', position: 'relative', width: '100%'}}>
+        <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(to right, transparent, #d1d5db, transparent)'}}></div>
 
         <FilterBar
           filterSummary={filterSummary}
           onFilterClick={() => setIsFilterPanelOpen(true)}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+        <div style={{display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', width: '100%'}}>
           {filteredJobs.map((job, index) => (
             <JobCard key={index} job={job} />
           ))}

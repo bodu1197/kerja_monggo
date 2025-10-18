@@ -98,41 +98,48 @@ export default function FilterPanel({ isOpen, onClose, sampleJobs, onApplyFilter
   if (!isOpen) return null
 
   return (
-    <div className={`fixed top-0 left-0 w-full h-full z-[2000] flex items-end justify-center transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
+    <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', opacity: isOpen ? 1 : 0, transition: 'opacity 0.3s'}}>
       <div
-        className="absolute top-0 left-0 w-full h-full bg-black/50"
-        style={{backdropFilter: 'blur(4px)'}}
+        style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)'}}
         onClick={onClose}
       ></div>
 
-      <div className={`relative max-w-[600px] w-full bg-white rounded-t-3xl max-h-[85vh] flex flex-col transition-transform duration-300 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
-        <div className="flex justify-between items-center px-6 py-6 border-b border-gray-200">
-          <h3 className="text-xl font-bold text-[#2c3e50] m-0">검색 필터</h3>
+      <div style={{position: 'relative', maxWidth: '600px', width: '100%', background: 'white', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', transform: isOpen ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.3s'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', borderBottom: '1px solid #e5e7eb'}}>
+          <h3 style={{fontSize: '20px', fontWeight: 'bold', color: '#2c3e50', margin: 0}}>검색 필터</h3>
           <button
             onClick={onClose}
-            className="bg-transparent border-none cursor-pointer p-2 text-[#666] transition-colors hover:text-black"
+            style={{background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px', color: '#666', transition: 'color 0.3s'}}
           >
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg style={{width: '24px', height: '24px'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div style={{flex: 1, overflowY: 'auto', padding: '24px'}}>
           {/* 유형 선택 */}
-          <div className="mb-7">
-            <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">유형</label>
-            <div className="flex gap-2">
+          <div style={{marginBottom: '28px'}}>
+            <label style={{display: 'block', fontSize: '15px', fontWeight: '600', color: '#2c3e50', marginBottom: '12px'}}>유형</label>
+            <div style={{display: 'flex', gap: '8px'}}>
               {['all', 'job', 'worker'].map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedType(type)}
-                  className={`flex-1 px-3 py-3 rounded-[10px] text-sm font-semibold cursor-pointer transition-all border-2 ${
-                    selectedType === type
-                      ? 'bg-[#2c3e50] border-[#2c3e50] text-white'
-                      : 'bg-white border-gray-200 text-[#666] hover:border-[#2c3e50] hover:text-[#2c3e50]'
-                  }`}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    border: '2px solid',
+                    borderColor: selectedType === type ? '#2c3e50' : '#e5e7eb',
+                    background: selectedType === type ? '#2c3e50' : 'white',
+                    color: selectedType === type ? 'white' : '#666'
+                  }}
                 >
                   {type === 'all' ? '전체' : type === 'job' ? '구직' : '구인'}
                 </button>
@@ -141,14 +148,14 @@ export default function FilterPanel({ isOpen, onClose, sampleJobs, onApplyFilter
           </div>
 
           {/* 지역 선택 */}
-          <div className="mb-7">
-            <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">Wilayah (지역)</label>
-            <div className="relative mb-3">
+          <div style={{marginBottom: '28px'}}>
+            <label style={{display: 'block', fontSize: '15px', fontWeight: '600', color: '#2c3e50', marginBottom: '12px'}}>Wilayah (지역)</label>
+            <div style={{position: 'relative', marginBottom: '12px'}}>
               <select
                 id="filterRegion1"
                 value={region1}
                 onChange={(e) => setRegion1(e.target.value)}
-                className="w-full h-[52px] px-4 pr-12 bg-white border-2 border-gray-200 rounded-xl text-[15px] text-[#333] cursor-pointer transition-all focus:outline-none focus:border-[#2c3e50] focus:ring-4 focus:ring-[#2c3e50]/10 disabled:bg-gray-100 disabled:text-[#999] disabled:cursor-not-allowed appearance-none"
+                style={{width: '100%', height: '52px', padding: '0 48px 0 16px', background: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: '15px', color: '#333', cursor: 'pointer', appearance: 'none', outline: 'none'}}
               >
                 <option value="">모든 지역</option>
                 <option value="jakarta">Jakarta</option>
@@ -157,39 +164,39 @@ export default function FilterPanel({ isOpen, onClose, sampleJobs, onApplyFilter
                 <option value="medan">Medan</option>
                 <option value="bali">Bali</option>
               </select>
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg style={{position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#666', pointerEvents: 'none'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
 
-            <div className="relative">
+            <div style={{position: 'relative'}}>
               <select
                 id="filterRegion2"
                 value={region2}
                 onChange={(e) => setRegion2(e.target.value)}
                 disabled={!region1}
-                className="w-full h-[52px] px-4 pr-12 bg-white border-2 border-gray-200 rounded-xl text-[15px] text-[#333] cursor-pointer transition-all focus:outline-none focus:border-[#2c3e50] focus:ring-4 focus:ring-[#2c3e50]/10 disabled:bg-gray-100 disabled:text-[#999] disabled:cursor-not-allowed appearance-none"
+                style={{width: '100%', height: '52px', padding: '0 48px 0 16px', background: region1 ? 'white' : '#f3f4f6', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: '15px', color: region1 ? '#333' : '#999', cursor: region1 ? 'pointer' : 'not-allowed', appearance: 'none', outline: 'none'}}
               >
                 <option value="">세부 지역</option>
                 {region2Options.map((r) => (
                   <option key={r} value={r.toLowerCase().replace(/\s+/g, '-')}>{r}</option>
                 ))}
               </select>
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg style={{position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#666', pointerEvents: 'none'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
           </div>
 
           {/* 직업 선택 */}
-          <div className="mb-7">
-            <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">Pekerjaan (직업)</label>
-            <div className="relative mb-3">
+          <div style={{marginBottom: '28px'}}>
+            <label style={{display: 'block', fontSize: '15px', fontWeight: '600', color: '#2c3e50', marginBottom: '12px'}}>Pekerjaan (직업)</label>
+            <div style={{position: 'relative', marginBottom: '12px'}}>
               <select
                 id="filterJob1"
                 value={job1}
                 onChange={(e) => setJob1(e.target.value)}
-                className="w-full h-[52px] px-4 pr-12 bg-white border-2 border-gray-200 rounded-xl text-[15px] text-[#333] cursor-pointer transition-all focus:outline-none focus:border-[#2c3e50] focus:ring-4 focus:ring-[#2c3e50]/10 disabled:bg-gray-100 disabled:text-[#999] disabled:cursor-not-allowed appearance-none"
+                style={{width: '100%', height: '52px', padding: '0 48px 0 16px', background: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: '15px', color: '#333', cursor: 'pointer', appearance: 'none', outline: 'none'}}
               >
                 <option value="">모든 직업</option>
                 <option value="it">IT & Teknologi</option>
@@ -198,41 +205,41 @@ export default function FilterPanel({ isOpen, onClose, sampleJobs, onApplyFilter
                 <option value="education">Pendidikan</option>
                 <option value="healthcare">Kesehatan</option>
               </select>
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg style={{position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#666', pointerEvents: 'none'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
 
-            <div className="relative">
+            <div style={{position: 'relative'}}>
               <select
                 id="filterJob2"
                 value={job2}
                 onChange={(e) => setJob2(e.target.value)}
                 disabled={!job1}
-                className="w-full h-[52px] px-4 pr-12 bg-white border-2 border-gray-200 rounded-xl text-[15px] text-[#333] cursor-pointer transition-all focus:outline-none focus:border-[#2c3e50] focus:ring-4 focus:ring-[#2c3e50]/10 disabled:bg-gray-100 disabled:text-[#999] disabled:cursor-not-allowed appearance-none"
+                style={{width: '100%', height: '52px', padding: '0 48px 0 16px', background: job1 ? 'white' : '#f3f4f6', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: '15px', color: job1 ? '#333' : '#999', cursor: job1 ? 'pointer' : 'not-allowed', appearance: 'none', outline: 'none'}}
               >
                 <option value="">세부 직업</option>
                 {job2Options.map((j) => (
                   <option key={j} value={j.toLowerCase().replace(/\s+/g, '-')}>{j}</option>
                 ))}
               </select>
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg style={{position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#666', pointerEvents: 'none'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
           </div>
 
           {/* 버튼 */}
-          <div className="flex gap-3 mt-2">
+          <div style={{display: 'flex', gap: '12px', marginTop: '8px'}}>
             <button
               onClick={handleReset}
-              className="flex-1 py-3.5 border-none rounded-[10px] text-[15px] font-semibold cursor-pointer transition-all bg-gray-100 text-[#666] hover:bg-gray-200 hover:text-[#333]"
+              style={{flex: 1, padding: '14px', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s', background: '#f3f4f6', color: '#666'}}
             >
               초기화
             </button>
             <button
               onClick={handleApply}
-              className="flex-1 py-3.5 border-none rounded-[10px] text-[15px] font-semibold cursor-pointer transition-all bg-[#2c3e50] text-white hover:bg-[#34495e]"
+              style={{flex: 1, padding: '14px', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s', background: '#2c3e50', color: 'white'}}
             >
               적용
             </button>
