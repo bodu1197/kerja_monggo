@@ -275,9 +275,11 @@ export default function PostJobPage() {
 
             {/* 제목 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">제목</label>
+              <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">제목</label>
               <input
                 type="text"
+                id="title"
+                name="title"
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
@@ -288,8 +290,10 @@ export default function PostJobPage() {
 
             {/* 설명 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">설명</label>
+              <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">설명</label>
               <textarea
+                id="description"
+                name="description"
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none h-32"
@@ -306,6 +310,7 @@ export default function PostJobPage() {
                   <label htmlFor="province_id" className="sr-only">시/도 선택</label>
                   <select
                     id="province_id"
+                    name="province_id"
                     value={formData.province_id}
                     onChange={(e) => setFormData({...formData, province_id: e.target.value, regency_id: ''})}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
@@ -325,6 +330,7 @@ export default function PostJobPage() {
                   <label htmlFor="regency_id" className="sr-only">시/군/구 선택</label>
                   <select
                     id="regency_id"
+                    name="regency_id"
                     value={formData.regency_id}
                     onChange={(e) => setFormData({...formData, regency_id: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
@@ -351,6 +357,7 @@ export default function PostJobPage() {
                   <label htmlFor="category_id" className="sr-only">직업 대분류 선택</label>
                   <select
                     id="category_id"
+                    name="category_id"
                     value={formData.category_id}
                     onChange={(e) => setFormData({...formData, category_id: e.target.value, subcategory_id: ''})}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
@@ -370,6 +377,7 @@ export default function PostJobPage() {
                   <label htmlFor="subcategory_id" className="sr-only">직업 소분류 선택</label>
                   <select
                     id="subcategory_id"
+                    name="subcategory_id"
                     value={formData.subcategory_id}
                     onChange={(e) => setFormData({...formData, subcategory_id: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
@@ -392,6 +400,7 @@ export default function PostJobPage() {
               <label htmlFor="employment_type" className="block text-sm font-semibold text-slate-700 mb-2">고용 형태</label>
               <select
                 id="employment_type"
+                name="employment_type"
                 value={formData.employment_type}
                 onChange={(e) => setFormData({...formData, employment_type: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
@@ -410,6 +419,7 @@ export default function PostJobPage() {
               <label htmlFor="experience_level" className="block text-sm font-semibold text-slate-700 mb-2">경력</label>
               <select
                 id="experience_level"
+                name="experience_level"
                 value={formData.experience_level}
                 onChange={(e) => setFormData({...formData, experience_level: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
@@ -430,6 +440,8 @@ export default function PostJobPage() {
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="number"
+                  id="salary_min"
+                  name="salary_min"
                   value={formData.salary_min}
                   onChange={(e) => setFormData({...formData, salary_min: e.target.value})}
                   className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
@@ -437,6 +449,8 @@ export default function PostJobPage() {
                 />
                 <input
                   type="number"
+                  id="salary_max"
+                  name="salary_max"
                   value={formData.salary_max}
                   onChange={(e) => setFormData({...formData, salary_max: e.target.value})}
                   className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
