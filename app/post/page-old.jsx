@@ -1,0 +1,668 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+export default function PostJobPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [provinces, setProvinces] = useState([])
+  const [regencies, setRegencies] = useState([])
+  const [categories, setCategories] = useState([])
+  const [subcategories, setSubcategories] = useState([])
+
+  const [formData, setFormData] = useState({
+    // 회사 정보
+    company_name: '',
+    contact_person: '',
+    phone: '',
+    email: '',
+    business_registration: '',
+    company_size: '',
+    industry: '',
+    website: '',
+    address: '',
+    company_description: '',
+
+    // 채용 공고 정보
+    title: '',
+    description: '',
+    requirements: '',
+    responsibilities: '',
+    province_id: '',
+    regency_id: '',
+    category_id: '',
+    subcategory_id: '',
+    employment_type: 'full_time',
+    experience_level: 'entry',
+    salary_min: '',
+    salary_max: '',
+    is_salary_negotiable: false,
+    is_remote: false,
+    skills: [],
+    benefits: [],
+    positions_available: 1,
+    deadline: '',
+  })
+
+  const [logoFile, setLogoFile] = useState(null)
+  const [logoPreview, setLogoPreview] = useState(null)
+
+  // Load initial data
+  useEffect(() => {
+    loadInitialData()
+  }, [])
+
+  // Load regencies when province changes
+  useEffect(() => {
+    if (formData.province_id) {
+      loadRegencies(formData.province_id)
+    } else {
+      setRegencies([])
+    }
+  }, [formData.province_id])
+
+  // Load subcategories when category changes
+  useEffect(() => {
+    if (formData.category_id && categories.length > 0) {
+      loadSubcategories(formData.category_id)
+    } else {
+      setSubcategories([])
+    }
+  }, [formData.category_id, categories])
+
+  const loadInitialData = async () => {
+    const supabase = createClient()
+    console.log('🚀 loadInitialData 시작')
+
+    // Check cache first
+    const cachedProvinces = localStorage.getItem('provinces')
+    const cachedCategories = localStorage.getItem('categories')
+    const cacheTime = localStorage.getItem('provincesCategories_cacheTime')
+    const now = Date.now()
+    const oneDay = 24 * 60 * 60 * 1000 // 24 hours
+
+    // Use cache if valid (less than 24 hours old)
+    if (cachedProvinces && cachedCategories && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      const provinces = JSON.parse(cachedProvinces)
+      const categories = JSON.parse(cachedCategories)
+      console.log('💾 캐시에서 로드 - Provinces:', provinces.length, '개, Categories:', categories.length, '개')
+      setProvinces(provinces)
+      setCategories(categories)
+      return
+    }
+
+    console.log('🌐 API에서 새로 로드')
+
+    // Load provinces
+    const { data: provincesData } = await supabase
+      .from('provinces')
+      .select('province_id, province_name')
+      .order('province_name')
+
+    // Load parent categories only (1차 카테고리)
+    const { data: categoriesData } = await supabase
+      .from('categories')
+      .select('category_id, name')
+      .is('parent_category', null)
+      .order('name')
+
+    console.log('✅ API 로드 완료 - Provinces:', provincesData?.length || 0, '개, Categories:', categoriesData?.length || 0, '개')
+
+    // Cache the data
+    if (provincesData) {
+      localStorage.setItem('provinces', JSON.stringify(provincesData))
+    }
+    if (categoriesData) {
+      localStorage.setItem('categories', JSON.stringify(categoriesData))
+    }
+    localStorage.setItem('provincesCategories_cacheTime', now.toString())
+
+    setProvinces(provincesData || [])
+    setCategories(categoriesData || [])
+  }
+
+  const loadRegencies = async (provinceId) => {
+    const supabase = createClient()
+
+    // Check cache
+    const cacheKey = `regencies_${provinceId}`
+    const cached = localStorage.getItem(cacheKey)
+    const cacheTime = localStorage.getItem(`${cacheKey}_time`)
+    const now = Date.now()
+    const oneDay = 24 * 60 * 60 * 1000
+
+    if (cached && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      setRegencies(JSON.parse(cached))
+      return
+    }
+
+    const { data } = await supabase
+      .from('regencies')
+      .select('regency_id, regency_name')
+      .eq('province_id', provinceId)
+      .order('regency_name')
+
+    if (data) {
+      localStorage.setItem(cacheKey, JSON.stringify(data))
+      localStorage.setItem(`${cacheKey}_time`, now.toString())
+    }
+
+    setRegencies(data || [])
+  }
+
+  const loadSubcategories = async (categoryId) => {
+    const supabase = createClient()
+
+    console.log('🔍 loadSubcategories 호출:', categoryId)
+    console.log('📦 categories 배열:', categories)
+
+    // Find the category name from the categories array
+    const selectedCategory = categories.find(c => c.category_id == categoryId)
+    console.log('🎯 선택된 카테고리:', selectedCategory)
+
+    if (!selectedCategory) {
+      console.log('⚠️ 카테고리를 찾을 수 없음')
+      setSubcategories([])
+      return
+    }
+
+    // Check cache
+    const cacheKey = `subcategories_${categoryId}`
+    const cached = localStorage.getItem(cacheKey)
+    const cacheTime = localStorage.getItem(`${cacheKey}_time`)
+    const now = Date.now()
+    const oneDay = 24 * 60 * 60 * 1000
+
+    if (cached && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      const cachedData = JSON.parse(cached)
+      console.log('💾 캐시에서 로드:', cachedData.length, '개')
+      setSubcategories(cachedData)
+      return
+    }
+
+    console.log('🌐 API 요청:', selectedCategory.name)
+    const { data, error } = await supabase
+      .from('categories')
+      .select('category_id, name')
+      .eq('parent_category', selectedCategory.name)
+      .order('name')
+
+    if (error) {
+      console.error('❌ 오류:', error)
+      setSubcategories([])
+      return
+    }
+
+    console.log('✅ 로드 완료:', data?.length || 0, '개')
+
+    if (data) {
+      localStorage.setItem(cacheKey, JSON.stringify(data))
+      localStorage.setItem(`${cacheKey}_time`, now.toString())
+    }
+
+    setSubcategories(data || [])
+  }
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setLogoFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setLogoPreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const uploadLogo = async (file) => {
+    const supabase = createClient()
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random()}.${fileExt}`
+    const filePath = `logos/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('company-assets')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      console.error('Logo upload error:', uploadError)
+      return null
+    }
+
+    const { data } = supabase.storage
+      .from('company-assets')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const supabase = createClient()
+
+      // Check if user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+      if (authError || !user) {
+        alert('로그인이 필요합니다.')
+        router.push('/login')
+        return
+      }
+
+      // Upload logo if provided
+      let logoUrl = null
+      if (logoFile) {
+        logoUrl = await uploadLogo(logoFile)
+        if (!logoUrl) {
+          alert('로고 업로드 중 오류가 발생했습니다.')
+          setLoading(false)
+          return
+        }
+      }
+
+      // Check if user has a company profile
+      let { data: companies, error: companyError } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+
+      let companyId
+
+      if (!companies || companies.length === 0) {
+        // Create a new company for the user
+        const { data: newCompany, error: createError } = await supabase
+          .from('companies')
+          .insert([{
+            user_id: user.id,
+            company_name: formData.company_name,
+            contact_person: formData.contact_person,
+            phone: formData.phone,
+            email: formData.email,
+            business_registration: formData.business_registration,
+            company_size: formData.company_size,
+            industry: formData.industry,
+            website: formData.website,
+            address: formData.address,
+            regency_id: formData.regency_id,
+            province_id: formData.province_id,
+            logo_url: logoUrl,
+            description: formData.company_description || '회사 소개를 추가해주세요.'
+          }])
+          .select()
+          .single()
+
+        if (createError) {
+          console.error('Error creating company:', createError)
+          alert('회사 프로필 생성 중 오류가 발생했습니다.')
+          return
+        }
+
+        companyId = newCompany.id
+      } else {
+        // Update existing company info
+        companyId = companies[0].id
+
+        const updateData = {
+          company_name: formData.company_name,
+          contact_person: formData.contact_person,
+          phone: formData.phone,
+          email: formData.email,
+          regency_id: formData.regency_id,
+          province_id: formData.province_id
+        }
+
+        if (logoUrl) {
+          updateData.logo_url = logoUrl
+        }
+
+        const { error: updateError } = await supabase
+          .from('companies')
+          .update(updateData)
+          .eq('id', companyId)
+
+        if (updateError) {
+          console.error('Error updating company:', updateError)
+        }
+      }
+
+      // Prepare job data for insertion
+      const jobData = {
+        company_id: companyId,
+        title: formData.title,
+        description: formData.description,
+        requirements: formData.requirements,
+        responsibilities: formData.responsibilities,
+        province_id: formData.province_id,
+        regency_id: formData.regency_id,
+        category_id: formData.subcategory_id || formData.category_id,
+        employment_type: formData.employment_type,
+        experience_level: formData.experience_level,
+        salary_min: formData.salary_min ? parseInt(formData.salary_min) : null,
+        salary_max: formData.salary_max ? parseInt(formData.salary_max) : null,
+        is_salary_negotiable: formData.is_salary_negotiable,
+        is_remote: formData.is_remote,
+        skills: formData.skills,
+        benefits: formData.benefits,
+        positions_available: parseInt(formData.positions_available) || 1,
+        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
+        status: 'active'
+      }
+
+      // Insert job into database
+      const { data, error } = await supabase
+        .from('jobs')
+        .insert([jobData])
+        .select()
+
+      if (error) {
+        console.error('Error inserting job:', error)
+        alert('등록 중 오류가 발생했습니다: ' + error.message)
+        return
+      }
+
+      alert('성공적으로 등록되었습니다!')
+      router.push('/')
+
+    } catch (error) {
+      console.error('Unexpected error:', error)
+      alert('예상치 못한 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const clearAllCache = () => {
+    localStorage.clear()
+    console.log('🗑️ 모든 캐시 삭제 완료')
+    alert('캐시가 삭제되었습니다. 페이지를 새로고침합니다.')
+    window.location.reload()
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-[600px] mx-auto px-5">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-slate-700">구인/구직 등록</h1>
+            <button
+              type="button"
+              onClick={clearAllCache}
+              className="text-xs px-3 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors"
+              title="드롭다운 데이터가 표시되지 않으면 클릭하세요"
+            >
+              캐시 삭제
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* 유형 선택 */}
+            <div>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">유형</div>
+              <div className="flex gap-3" role="group" aria-label="유형 선택">
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, type: 'job'})}
+                  className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                    formData.type === 'job'
+                      ? 'bg-slate-700 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  구직 (일자리 찾기)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, type: 'worker'})}
+                  className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                    formData.type === 'worker'
+                      ? 'bg-slate-700 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  구인 (인재 찾기)
+                </button>
+              </div>
+            </div>
+
+            {/* 제목 */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">제목</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
+                placeholder="예: Software Developer 구함"
+                required
+              />
+            </div>
+
+            {/* 설명 */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">설명</label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none h-32"
+                placeholder="상세한 설명을 입력하세요..."
+                required
+              />
+            </div>
+
+            {/* 지역 선택 */}
+            <div>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">지역 (Wilayah)</div>
+              <div className="space-y-3">
+                <div>
+                  <label htmlFor="province_id" className="sr-only">시/도 선택</label>
+                  <select
+                    id="province_id"
+                    name="province_id"
+                    value={formData.province_id}
+                    onChange={(e) => setFormData({...formData, province_id: e.target.value, regency_id: ''})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                    required
+                    aria-label="시/도 선택"
+                  >
+                    <option value="">시/도 선택</option>
+                    {provinces.map((province) => (
+                      <option key={province.province_id} value={province.province_id}>
+                        {province.province_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="regency_id" className="sr-only">시/군/구 선택</label>
+                  <select
+                    id="regency_id"
+                    name="regency_id"
+                    value={formData.regency_id}
+                    onChange={(e) => setFormData({...formData, regency_id: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
+                    disabled={!formData.province_id}
+                    required
+                    aria-label="시/군/구 선택"
+                  >
+                    <option value="">시/군/구 선택</option>
+                    {regencies.map((regency) => (
+                      <option key={regency.regency_id} value={regency.regency_id}>
+                        {regency.regency_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 직업 카테고리 */}
+            <div>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">직업 분야 (Pekerjaan)</div>
+              <div className="space-y-3">
+                <div>
+                  <label htmlFor="category_id" className="sr-only">직업 대분류 선택</label>
+                  <select
+                    id="category_id"
+                    name="category_id"
+                    value={formData.category_id}
+                    onChange={(e) => setFormData({...formData, category_id: e.target.value, subcategory_id: ''})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                    required
+                    aria-label="직업 대분류 선택"
+                  >
+                    <option value="">대분류 선택</option>
+                    {categories.map((category) => (
+                      <option key={category.category_id} value={category.category_id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="subcategory_id" className="sr-only">직업 소분류 선택</label>
+                  <select
+                    id="subcategory_id"
+                    name="subcategory_id"
+                    value={formData.subcategory_id}
+                    onChange={(e) => setFormData({...formData, subcategory_id: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
+                    disabled={!formData.category_id}
+                    aria-label="직업 소분류 선택"
+                  >
+                    <option value="">소분류 선택 (선택사항)</option>
+                    {subcategories.map((subcategory) => (
+                      <option key={subcategory.category_id} value={subcategory.category_id}>
+                        {subcategory.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 고용 형태 */}
+            <div>
+              <label htmlFor="employment_type" className="block text-sm font-semibold text-slate-700 mb-2">고용 형태</label>
+              <select
+                id="employment_type"
+                name="employment_type"
+                value={formData.employment_type}
+                onChange={(e) => setFormData({...formData, employment_type: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                aria-label="고용 형태 선택"
+              >
+                <option value="full_time">풀타임</option>
+                <option value="part_time">파트타임</option>
+                <option value="contract">계약직</option>
+                <option value="internship">인턴십</option>
+                <option value="freelance">프리랜서</option>
+              </select>
+            </div>
+
+            {/* 경력 */}
+            <div>
+              <label htmlFor="experience_level" className="block text-sm font-semibold text-slate-700 mb-2">경력</label>
+              <select
+                id="experience_level"
+                name="experience_level"
+                value={formData.experience_level}
+                onChange={(e) => setFormData({...formData, experience_level: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                aria-label="경력 선택"
+              >
+                <option value="entry">신입</option>
+                <option value="junior">주니어 (1-3년)</option>
+                <option value="mid">중급 (3-5년)</option>
+                <option value="senior">시니어 (5-10년)</option>
+                <option value="lead">리드 (10년+)</option>
+                <option value="executive">임원급</option>
+              </select>
+            </div>
+
+            {/* 급여 */}
+            <div>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">급여 (IDR)</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="salary_min" className="sr-only">최소 급여</label>
+                  <input
+                    type="number"
+                    id="salary_min"
+                    name="salary_min"
+                    value={formData.salary_min}
+                    onChange={(e) => setFormData({...formData, salary_min: e.target.value})}
+                    className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none w-full"
+                    placeholder="최소"
+                    aria-label="최소 급여"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="salary_max" className="sr-only">최대 급여</label>
+                  <input
+                    type="number"
+                    id="salary_max"
+                    name="salary_max"
+                    value={formData.salary_max}
+                    onChange={(e) => setFormData({...formData, salary_max: e.target.value})}
+                    className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none w-full"
+                    placeholder="최대"
+                    aria-label="최대 급여"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 마감기한 */}
+            <div>
+              <label htmlFor="deadline" className="block text-sm font-semibold text-slate-700 mb-2">
+                마감기한 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="datetime-local"
+                id="deadline"
+                name="deadline"
+                value={formData.deadline}
+                onChange={(e) => setFormData({...formData, deadline: e.target.value})}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
+                required
+                min={new Date().toISOString().slice(0, 16)}
+              />
+              <p className="mt-1 text-xs text-gray-500">지원 마감일시를 선택하세요</p>
+            </div>
+
+            {/* 제출 버튼 */}
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="flex-1 py-3 px-4 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 py-3 px-4 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all disabled:opacity-50"
+              >
+                {loading ? '등록 중...' : '등록하기'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}
