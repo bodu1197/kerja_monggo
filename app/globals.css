@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@layer base {
+  :host,
+  html {
+    text-size-adjust: 100%;
+  }
+}
+
 /* Line clamp utility */
 .line-clamp-2 {
   overflow: hidden;
