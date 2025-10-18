@@ -1,5 +1,4 @@
 import { createClient } from './utils/supabase-server'
-import SearchSection from './components/SearchSection'
 import JobCard from './components/JobCard'
 
 export default async function Home() {
@@ -32,12 +31,6 @@ export default async function Home() {
     .order('name')
     .limit(8)
 
-  // Fetch provinces for filter
-  const { data: provinces } = await supabase
-    .from('provinces')
-    .select('*')
-    .order('name')
-
   // Count statistics
   const { count: jobCount } = await supabase
     .from('jobs')
@@ -53,10 +46,7 @@ export default async function Home() {
     .select('*', { count: 'exact', head: true })
 
   return (
-    <div className="pb-20">
-      {/* Search Section */}
-      <SearchSection provinces={provinces || []} categories={categories || []} />
-
+    <div>
       {/* Quick Categories */}
       <div className="px-4 py-4 bg-white">
         <h2 className="text-sm font-semibold text-gray-700 mb-3">Kategori Populer</h2>
