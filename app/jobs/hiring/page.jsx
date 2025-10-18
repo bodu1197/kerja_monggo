@@ -10,20 +10,24 @@ export default async function Page() {
   const supabase = await createClient()
 
   // provinces 데이터 가져오기
-  const { data: provinces } = await supabase
+  const { data: provinces, error: provincesError } = await supabase
     .from('provinces')
     .select('id, name')
     .order('name')
 
+  console.log('SERVER - Provinces:', provinces?.length, provincesError)
+
   // categories 데이터 가져오기 (parent_category만)
-  const { data: categories } = await supabase
+  const { data: categories, error: categoriesError } = await supabase
     .from('categories')
     .select('id, name, parent_category')
     .is('parent_category', null)
     .order('name')
 
+  console.log('SERVER - Categories:', categories?.length, categoriesError)
+
   // job_posts 데이터 가져오기
-  const { data: jobs } = await supabase
+  const { data: jobs, error: jobsError } = await supabase
     .from('job_posts')
     .select(`
       *,
@@ -36,6 +40,8 @@ export default async function Page() {
     .order('created_at', { ascending: false })
     .limit(50)
 
+  console.log('SERVER - Jobs:', jobs?.length, jobsError)
+
   // 데이터 변환
   const transformedJobs = jobs?.map(job => ({
     ...job,
@@ -44,6 +50,13 @@ export default async function Page() {
     category_name: job.category?.name,
     subcategory_name: job.subcategory?.name,
   })) || []
+
+  console.log('SERVER - Transformed Jobs:', transformedJobs.length)
+  console.log('SERVER - Passing to HiringPage:', {
+    provinces: provinces?.length || 0,
+    categories: categories?.length || 0,
+    jobs: transformedJobs.length
+  })
 
   return (
     <HiringPage
