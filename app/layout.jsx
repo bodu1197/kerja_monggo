@@ -9,10 +9,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className="w-full h-full">
-      <body className="w-full min-h-screen overflow-x-hidden" style={{background: '#fafafa'}}>
+    <html lang="id">
+      <body className="m-0 p-0 bg-white overflow-x-hidden">
         <SupabaseProvider>
-          <div className="w-full mx-auto bg-white" style={{maxWidth: '600px', minHeight: '100vh', paddingBottom: '70px', display: 'flex', flexDirection: 'column'}}>
+          <div className="max-w-[600px] mx-auto bg-white min-h-screen flex flex-col pb-[70px]">
             {children}
           </div>
         </SupabaseProvider>

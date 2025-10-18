@@ -1,0 +1,1033 @@
+# 인도네시아 구인구직 플랫폼 개발 명세서
+
+## 프로젝트 개요
+인도네시아 시장을 타겟으로 한 구인구직 플랫폼 개발. Google PageSpeed 100점, SEO 최적화, 신뢰성 있는 디자인 구현.
+
+---
+
+## 기술 스택
+
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+  - 이유: SSR/SSG 지원으로 SEO 최적화, 빠른 초기 로딩
+- **언어**: TypeScript
+  - 이유: 타입 안정성, 유지보수성 향상
+- **스타일링**: Tailwind CSS + shadcn/ui
+  - 이유: 빠른 개발, 일관된 디자인 시스템
+- **상태관리**: Zustand 또는 React Query
+  - 이유: 경량, 서버 상태 관리 최적화
+- **폼 관리**: React Hook Form + Zod
+  - 이유: 성능, 유효성 검사
+
+### Backend
+- **Framework**: Next.js API Routes + tRPC
+  - 이유: 풀스택 TypeScript, 타입 안전성
+- **데이터베이스**: PostgreSQL (Supabase 또는 Neon)
+  - 이유: 안정성, 확장성, 관계형 데이터 구조
+- **ORM**: Prisma
+  - 이유: TypeScript 통합, 마이그레이션 관리
+- **인증**: NextAuth.js v5
+  - 이유: Google OAuth 간편 통합, 세션 관리
+- **파일 저장소**: Cloudinary 또는 Supabase Storage
+  - 이유: 이미지 최적화, CDN
+
+### 배포 및 인프라
+- **호스팅**: Vercel
+  - 이유: Next.js 최적화, 자동 배포, Edge Network
+- **CDN**: Vercel Edge Network
+  - 이유: 전 세계 빠른 로딩 속도
+- **모니터링**: Vercel Analytics + Google Analytics 4
+
+---
+
+## 페이지별 개발 명령
+
+### 1. 메인 페이지 (/)
+
+```
+Next.js 14 App Router를 사용하여 인도네시아 구인구직 플랫폼의 메인 페이지를 개발해주세요.
+
+**요구사항:**
+1. Hero Section
+   - 검색 바 (직종, 지역 필터)
+   - "Cari Pekerjaan" / "Cari Karyawan" 버튼
+   - **"Cari di Sekitar Saya" (내 주변 검색) 버튼** - 위치 아이콘과 함께 표시
+   - 인도네시아어 메인 카피: "Temukan Pekerjaan Impian Anda"
+
+2. 인기 직종 카테고리 섹션
+   - 아이콘과 함께 8-12개 카테고리 그리드
+   - IT, Konstruksi, Perhotelan, Retail 등
+
+3. 최신 채용공고 섹션
+   - 카드 형식으로 6-8개 공고 표시
+   - 회사 로고, 직무명, 위치, 급여 범위
+
+4. 신뢰성 요소
+   - 등록된 기업 수, 성공 취업 건수 통계
+   - 사용자 후기 (carousel)
+
+5. CTA 섹션
+   - 기업/구직자 회원가입 유도
+
+**성능 최적화:**
+- next/image로 모든 이미지 최적화
+- 동적 임포트로 코드 스플리팅
+- 폰트는 next/font로 로드
+- Metadata API로 SEO 설정
+
+**SEO 설정:**
+- Title: "Lowongan Kerja Indonesia | [사이트명]"
+- Description: 인도네시아 주요 키워드 포함
+- Open Graph, Twitter Card 설정
+- JSON-LD 구조화 데이터 (JobPosting schema)
+
+**디자인:**
+- 신뢰감 주는 블루/그린 계열 메인 컬러
+- 깔끔한 화이트 배경
+- 인도네시아 국기 색상 포인트 사용
+- 모바일 우선 반응형 디자인
+
+**⚠️ 중요: 위치정보 요청 금지**
+- 페이지 로드 시 절대 위치정보를 요청하지 말 것
+- 위치 기반 기능은 사용자가 명시적으로 "내 주변 검색" 버튼을 클릭했을 때만 실행
+```
+
+---
+
+## 위치 기반 검색 기능 구현 가이드
+
+### 사용자 액션 기반 위치 요청 (필수)
+
+```typescript
+// components/NearbySearchButton.tsx
+'use client'
+
+import { useState } from 'react'
+import { MapPin, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+
+export function NearbySearchButton() {
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
+  const handleNearbySearch = async () => {
+    // 사용자가 버튼을 클릭했을 때만 위치정보 요청
+    if (!navigator.geolocation) {
+      toast.error('Browser Anda tidak mendukung geolokasi')
+      return
+    }
+
+    setIsLoading(true)
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+        
+        try {
+          // Reverse geocoding으로 도시명 얻기
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=id`
+          )
+          const data = await response.json()
+          
+          const city = data.address.city || 
+                      data.address.state || 
+                      data.address.county
+          
+          // 위치 기반으로 검색 페이지로 이동
+          router.push(`/jobs?location=${encodeURIComponent(city)}&lat=${latitude}&lon=${longitude}`)
+          
+          toast.success(`Mencari pekerjaan di ${city}`)
+        } catch (error) {
+          toast.error('Gagal mendapatkan lokasi Anda')
+        } finally {
+          setIsLoading(false)
+        }
+      },
+      (error) => {
+        setIsLoading(false)
+        
+        // 사용자 친화적인 에러 메시지
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error('Anda menolak akses lokasi. Silakan cari secara manual.')
+            break
+          case error.POSITION_UNAVAILABLE:
+            toast.error('Informasi lokasi tidak tersedia')
+            break
+          case error.TIMEOUT:
+            toast.error('Permintaan lokasi timeout')
+            break
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    )
+  }
+
+  return (
+    <Button
+      onClick={handleNearbySearch}
+      disabled={isLoading}
+      variant="outline"
+      className="gap-2"
+    >
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <MapPin className="h-4 w-4" />
+      )}
+      {isLoading ? 'Mencari lokasi...' : 'Cari di Sekitar Saya'}
+    </Button>
+  )
+}
+```
+
+### 메인 페이지에 통합
+
+```typescript
+// app/page.tsx
+import { NearbySearchButton } from '@/components/NearbySearchButton'
+
+export default function HomePage() {
+  return (
+    <section className="hero">
+      <h1>Temukan Pekerjaan Impian Anda</h1>
+      
+      <div className="search-bar">
+        {/* 일반 검색 필터 */}
+        <input type="text" placeholder="Cari pekerjaan..." />
+        <select>
+          <option>Semua Lokasi</option>
+          <option>Jakarta</option>
+          <option>Surabaya</option>
+        </select>
+        <Button>Cari Pekerjaan</Button>
+      </div>
+
+      {/* 위치 기반 검색 버튼 - 별도로 배치 */}
+      <div className="mt-4 flex justify-center">
+        <NearbySearchButton />
+      </div>
+    </section>
+  )
+}
+```
+
+### 검색 결과 페이지에서 거리순 정렬
+
+```typescript
+// app/jobs/page.tsx
+import { Suspense } from 'react'
+
+type SearchParams = {
+  location?: string
+  lat?: string
+  lon?: string
+}
+
+export default async function JobsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams
+}) {
+  const { location, lat, lon } = searchParams
+
+  // 위치 기반 검색인 경우
+  if (lat && lon) {
+    const jobs = await getJobsNearby(
+      parseFloat(lat),
+      parseFloat(lon),
+      20 // 반경 20km
+    )
+
+    return (
+      <div>
+        <h1>Lowongan Kerja di Sekitar {location}</h1>
+        <p className="text-sm text-gray-600">
+          Menampilkan hasil dalam radius 20km
+        </p>
+        <JobList jobs={jobs} showDistance={true} />
+      </div>
+    )
+  }
+
+  // 일반 검색
+  const jobs = await getJobs({ location })
+  return <JobList jobs={jobs} />
+}
+```
+
+### 거리 계산 함수 (서버 사이드)
+
+```typescript
+// lib/geo.ts
+
+// Haversine formula로 거리 계산 (km)
+export function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371 // 지구 반지름 (km)
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2)
+  
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+function toRad(deg: number): number {
+  return deg * (Math.PI / 180)
+}
+
+// 데이터베이스 쿼리
+export async function getJobsNearby(
+  userLat: number,
+  userLon: number,
+  radiusKm: number
+) {
+  const jobs = await prisma.job.findMany({
+    where: {
+      // latitude, longitude 컬럼이 있어야 함
+      latitude: { not: null },
+      longitude: { not: null },
+    },
+    include: {
+      company: true,
+    },
+  })
+
+  // 거리 계산 및 필터링
+  return jobs
+    .map((job) => ({
+      ...job,
+      distance: calculateDistance(
+        userLat,
+        userLon,
+        job.latitude!,
+        job.longitude!
+      ),
+    }))
+    .filter((job) => job.distance <= radiusKm)
+    .sort((a, b) => a.distance - b.distance)
+}
+```
+
+### 데이터베이스 스키마 업데이트
+
+```prisma
+// prisma/schema.prisma
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   String
+  location    String   // "Jakarta", "Surabaya" 등
+  latitude    Float?   // 위치 기반 검색용
+  longitude   Float?   // 위치 기반 검색용
+  salary      String?
+  category    String
+  type        String
+  createdAt   DateTime @default(now())
+  applications Application[]
+}
+```
+
+### UI 개선 - 거리 표시
+
+```typescript
+// components/JobCard.tsx
+export function JobCard({ 
+  job, 
+  distance 
+}: { 
+  job: Job
+  distance?: number 
+}) {
+  return (
+    <Card>
+      <CardContent>
+        <h3>{job.title}</h3>
+        <p>{job.company.name}</p>
+        
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <MapPin className="h-4 w-4" />
+          <span>{job.location}</span>
+          
+          {/* 거리 정보가 있을 때만 표시 */}
+          {distance && (
+            <span className="text-primary-600 font-medium">
+              • {distance.toFixed(1)} km
+            </span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+### 보안 및 프라이버시 고려사항
+
+```typescript
+// middleware.ts - 위치정보 로깅 방지
+export function middleware(request: NextRequest) {
+  // 위치 파라미터를 로그에 기록하지 않음
+  const url = request.nextUrl.clone()
+  
+  // 민감한 파라미터 제거 후 로깅
+  const sanitizedUrl = new URL(url)
+  sanitizedUrl.searchParams.delete('lat')
+  sanitizedUrl.searchParams.delete('lon')
+  
+  console.log('Request:', sanitizedUrl.pathname)
+  
+  return NextResponse.next()
+}
+```
+
+### 사용자 안내 메시지
+
+```typescript
+// components/LocationPermissionInfo.tsx
+export function LocationPermissionInfo() {
+  return (
+    <Alert className="mt-4">
+      <InfoIcon className="h-4 w-4" />
+      <AlertTitle>Tentang Pencarian Lokasi</AlertTitle>
+      <AlertDescription>
+        Kami tidak akan meminta lokasi Anda secara otomatis. 
+        Klik tombol "Cari di Sekitar Saya" untuk mencari pekerjaan 
+        berdasarkan lokasi Anda saat ini.
+      </AlertDescription>
+    </Alert>
+  )
+}
+```
+
+---
+
+## ✅ 위치정보 체크리스트
+
+**절대 금지 사항:**
+- [ ] ❌ 페이지 로드 시 자동으로 `navigator.geolocation` 호출
+- [ ] ❌ `useEffect`에서 컴포넌트 마운트 시 위치 요청
+- [ ] ❌ 조건 없이 위치정보 권한 요청
+
+**필수 구현 사항:**
+- [ ] ✅ "내 주변 검색" 버튼 클릭 시에만 위치 요청
+- [ ] ✅ 버튼에 명확한 아이콘과 텍스트 표시
+- [ ] ✅ 로딩 상태 표시
+- [ ] ✅ 사용자 친화적인 에러 메시지
+- [ ] ✅ 위치 거부 시 대안 제공 (수동 검색)
+- [ ] ✅ 위치정보 사용 목적 안내
+
+**테스트 항목:**
+- [ ] 페이지 접속 시 위치 권한 팝업이 뜨지 않는지 확인
+- [ ] "내 주변 검색" 클릭 시에만 권한 요청하는지 확인
+- [ ] 권한 거부 시 적절한 메시지 표시되는지 확인
+- [ ] 위치 기반 검색 결과가 거리순으로 정렬되는지 확인
+
+---
+
+### 2. 구인 페이지 (/jobs)
+
+```
+구인 공고 목록 및 상세 페이지를 개발해주세요.
+
+**목록 페이지 (/jobs):**
+1. 필터링 시스템
+   - 직종 카테고리
+   - 지역 (Jakarta, Surabaya, Bandung 등)
+   - 급여 범위
+   - 경력 수준
+   - 고용 형태 (풀타임, 파트타임, 계약직)
+
+2. 정렬 옵션
+   - 최신순, 급여순, 관련도순
+
+3. 공고 카드
+   - 회사 로고 (next/image 최적화)
+   - 직무명, 회사명
+   - 위치, 급여
+   - 등록일
+   - "Lamar Sekarang" 버튼
+
+4. 무한 스크롤 또는 페이지네이션
+   - React Query로 데이터 fetching
+   - Skeleton loader
+
+**상세 페이지 (/jobs/[id]):**
+1. SSR로 초기 렌더링 (SEO)
+2. 공고 상세 정보
+   - 직무 설명
+   - 자격 요건
+   - 복리후생
+   - 회사 소개
+3. "지원하기" 버튼 (로그인 필요)
+4. 공유 버튼 (WhatsApp, Facebook)
+5. 유사 공고 추천
+
+**데이터베이스 스키마 (Prisma):**
+```prisma
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   String
+  location    String
+  salary      String?
+  category    String
+  type        String   // full-time, part-time, contract
+  createdAt   DateTime @default(now())
+  applications Application[]
+}
+```
+
+**성능:**
+- ISR(Incremental Static Regeneration) 사용
+- revalidate: 3600 (1시간마다 재생성)
+- 이미지 lazy loading
+```
+
+---
+
+### 3. 구직 페이지 (/candidates)
+
+```
+구직자 프로필 목록 페이지를 개발해주세요. (기업 회원 전용)
+
+**요구사항:**
+1. 권한 체크
+   - 기업 회원만 접근 가능
+   - middleware로 보호
+
+2. 필터링
+   - 직종
+   - 경력 수준
+   - 학력
+   - 기술 스택
+   - 지역
+
+3. 후보자 카드
+   - 프로필 사진 (블러 처리 옵션)
+   - 이름 또는 익명 처리
+   - 주요 경력
+   - 기술 태그
+   - "프로필 보기" 버튼
+
+4. 상세 프로필 (/candidates/[id])
+   - 이력서 다운로드
+   - 연락하기 버튼
+   - 스크랩 기능
+
+**개인정보 보호:**
+- 구직자 설정에 따라 정보 공개 범위 조절
+- 민감 정보 마스킹
+```
+
+---
+
+### 4. 로그인 및 회원가입 (/auth)
+
+```
+NextAuth.js v5를 사용한 인증 시스템을 구현해주세요.
+
+**로그인 페이지 (/auth/login):**
+1. 이메일/비밀번호 로그인
+2. Google OAuth 로그인
+   - "Masuk dengan Google" 버튼
+3. "비밀번호 찾기" 링크
+4. "회원가입" 링크
+
+**회원가입 페이지 (/auth/register):**
+1. 회원 유형 선택
+   - 구직자 (Pencari Kerja)
+   - 기업 (Perusahaan)
+
+2. 구직자 가입 폼
+   - 이름
+   - 이메일
+   - 비밀번호 (최소 8자, 특수문자 포함)
+   - 전화번호
+   - 지역
+   - Google 가입 옵션
+
+3. 기업 가입 폼
+   - 회사명
+   - 사업자 등록번호
+   - 담당자명
+   - 이메일
+   - 비밀번호
+   - 전화번호
+   - 회사 주소
+
+**기술 구현:**
+```typescript
+// app/api/auth/[...nextauth]/route.ts
+import NextAuth from "next-auth"
+import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
+
+export const authOptions = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    CredentialsProvider({
+      // 이메일/비밀번호 로그인 로직
+    }),
+  ],
+  callbacks: {
+    async session({ session, token }) {
+      // 세션에 사용자 역할 추가
+      session.user.role = token.role
+      return session
+    },
+  },
+}
+```
+
+**보안:**
+- CSRF 토큰
+- bcrypt로 비밀번호 해싱
+- Rate limiting (로그인 시도 제한)
+- 이메일 인증
+```
+
+---
+
+### 5. 어드민 페이지 (/admin)
+
+```
+관리자 대시보드를 개발해주세요.
+
+**접근 제어:**
+- middleware로 관리자 권한 체크
+- 비인가 접근 시 404 또는 홈으로 리다이렉트
+
+**대시보드 (/admin):**
+1. 통계 카드
+   - 총 사용자 수
+   - 총 공고 수
+   - 금일 신규 가입
+   - 금일 신규 공고
+
+2. 차트
+   - 월별 가입자 추이
+   - 직종별 공고 분포
+
+**관리 기능:**
+1. 사용자 관리 (/admin/users)
+   - 사용자 목록 (테이블)
+   - 검색, 필터
+   - 정지/복구 기능
+   - 역할 변경
+
+2. 공고 관리 (/admin/jobs)
+   - 공고 승인/거부
+   - 신고된 공고 처리
+   - 삭제
+
+3. 신고 관리 (/admin/reports)
+   - 신고 목록
+   - 처리 상태 관리
+
+**UI 컴포넌트:**
+- shadcn/ui Table
+- shadcn/ui Dialog (모달)
+- shadcn/ui Badge (상태 표시)
+- Recharts (차트)
+
+**데이터 fetching:**
+- Server Components로 초기 데이터 로드
+- React Query로 실시간 업데이트
+```
+
+---
+
+### 6. 마이페이지 (/profile)
+
+```
+사용자 프로필 및 설정 페이지를 개발해주세요.
+
+**구직자 마이페이지:**
+1. 프로필 편집
+   - 프로필 사진 업로드 (Cloudinary)
+   - 기본 정보 수정
+   - 이력서 업로드 (PDF)
+
+2. 이력 관리
+   - 학력 추가/수정/삭제
+   - 경력 추가/수정/삭제
+   - 기술/자격증
+
+3. 지원 현황 (/profile/applications)
+   - 지원한 공고 목록
+   - 상태 추적 (접수, 서류합격, 면접, 최종합격/불합격)
+
+4. 관심 공고 (/profile/saved)
+   - 스크랩한 공고 목록
+
+5. 설정
+   - 알림 설정
+   - 프로필 공개 범위
+   - 계정 연동 (Google)
+
+**기업 마이페이지:**
+1. 회사 정보 관리
+   - 로고 업로드
+   - 회사 소개
+   - 복리후생 정보
+
+2. 공고 관리 (/profile/my-jobs)
+   - 작성한 공고 목록
+   - 수정/삭제
+   - 마감/재개
+
+3. 지원자 관리 (/profile/applicants)
+   - 공고별 지원자 목록
+   - 이력서 다운로드
+   - 상태 변경 (서류합격, 면접 초대 등)
+
+4. 통계
+   - 공고별 조회수
+   - 지원자 수
+
+**폼 최적화:**
+```typescript
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const profileSchema = z.object({
+  name: z.string().min(2),
+  phone: z.string().regex(/^(\+62|62|0)[0-9]{9,12}$/),
+  location: z.string(),
+})
+
+// 낙관적 업데이트로 UX 향상
+```
+```
+
+---
+
+## PageSpeed 100점을 위한 최적화 체크리스트
+
+### 이미지 최적화
+```typescript
+// next.config.js
+module.exports = {
+  images: {
+    domains: ['res.cloudinary.com'],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+  },
+}
+
+// 사용 예시
+<Image
+  src="/hero.jpg"
+  alt="Hero"
+  width={1200}
+  height={600}
+  priority // LCP 최적화
+  placeholder="blur"
+/>
+```
+
+### 폰트 최적화
+```typescript
+// app/layout.tsx
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+})
+```
+
+### 번들 크기 최적화
+```typescript
+// 동적 임포트
+const Chart = dynamic(() => import('./Chart'), {
+  loading: () => <Skeleton />,
+  ssr: false,
+})
+```
+
+### 캐싱 전략
+```typescript
+// app/jobs/[id]/page.tsx
+export const revalidate = 3600 // 1시간
+
+export async function generateStaticParams() {
+  // 인기 공고 미리 생성
+  const jobs = await getPopularJobs()
+  return jobs.map((job) => ({ id: job.id }))
+}
+```
+
+### Core Web Vitals 최적화
+- LCP (Largest Contentful Paint) < 2.5s
+  - 히어로 이미지 priority 설정
+  - 폰트 preload
+  
+- FID (First Input Delay) < 100ms
+  - JavaScript 최소화
+  - 코드 스플리팅
+
+- CLS (Cumulative Layout Shift) < 0.1
+  - 이미지에 width/height 명시
+  - 폰트 display: swap
+
+---
+
+## Google SEO 최고 등급을 위한 설정
+
+### 메타데이터 설정
+```typescript
+// app/layout.tsx
+export const metadata: Metadata = {
+  title: {
+    default: 'Lowongan Kerja Indonesia Terpercaya | [사이트명]',
+    template: '%s | [사이트명]',
+  },
+  description: 'Platform lowongan kerja terpercaya di Indonesia. Temukan pekerjaan impian Anda atau cari kandidat terbaik untuk perusahaan Anda.',
+  keywords: ['lowongan kerja', 'kerja Indonesia', 'cari kerja', 'job vacancy'],
+  authors: [{ name: '[사이트명]' }],
+  openGraph: {
+    type: 'website',
+    locale: 'id_ID',
+    url: 'https://yoursite.com',
+    siteName: '[사이트명]',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
+```
+
+### 구조화 데이터 (JSON-LD)
+```typescript
+// app/jobs/[id]/page.tsx
+const jobPostingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'JobPosting',
+  title: job.title,
+  description: job.description,
+  datePosted: job.createdAt,
+  hiringOrganization: {
+    '@type': 'Organization',
+    name: job.company.name,
+  },
+  jobLocation: {
+    '@type': 'Place',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: job.location,
+      addressCountry: 'ID',
+    },
+  },
+}
+
+return (
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingSchema) }}
+  />
+)
+```
+
+### sitemap.xml 자동 생성
+```typescript
+// app/sitemap.ts
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const jobs = await getAllJobs()
+  
+  const jobUrls = jobs.map((job) => ({
+    url: `https://yoursite.com/jobs/${job.id}`,
+    lastModified: job.updatedAt,
+    changeFrequency: 'daily' as const,
+    priority: 0.8,
+  }))
+
+  return [
+    {
+      url: 'https://yoursite.com',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    ...jobUrls,
+  ]
+}
+```
+
+### robots.txt
+```typescript
+// app/robots.ts
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/admin/', '/api/', '/profile/'],
+    },
+    sitemap: 'https://yoursite.com/sitemap.xml',
+  }
+}
+```
+
+### 내부 링크 구조
+- 명확한 URL 구조 (/jobs/it-jakarta/senior-developer)
+- 빵부스러기(Breadcrumb) 네비게이션
+- 관련 공고 추천 링크
+
+---
+
+## 신뢰성 있는 디자인 가이드
+
+### 색상 팔레트
+```css
+/* Tailwind config */
+colors: {
+  primary: {
+    50: '#e6f2ff',
+    500: '#0066cc',  // 메인 블루 (신뢰감)
+    600: '#0052a3',
+  },
+  secondary: {
+    500: '#10b981',  // 그린 (성공, 활력)
+  },
+  neutral: {
+    100: '#f5f5f5',
+    800: '#1f2937',
+  }
+}
+```
+
+### 타이포그래피
+- 헤딩: Inter 폰트 (모던하고 가독성 좋음)
+- 본문: 16px 이상 (모바일에서도 편안한 읽기)
+- 행간: 1.6 (충분한 여백)
+
+### UI 원칙
+1. **일관성**
+   - 모든 버튼, 카드 동일한 스타일
+   - 간격 시스템 통일 (8px 단위)
+
+2. **명확성**
+   - CTA 버튼은 뚜렷한 색상
+   - 중요 정보는 시각적 강조
+
+3. **신뢰 요소**
+   - 회사 로고 표시
+   - 인증 마크 (verified badge)
+   - 통계 정보 (사용자 수, 성공 사례)
+   - Footer에 회사 정보, 연락처 명시
+
+4. **모바일 우선**
+   - 터치 영역 44px 이상
+   - 네비게이션 하단 고정
+
+### 컴포넌트 예시
+```tsx
+// 신뢰성 배지
+<Badge variant="outline" className="border-green-500 text-green-700">
+  <CheckCircle className="w-3 h-3 mr-1" />
+  Verified Company
+</Badge>
+
+// 통계 카드
+<Card>
+  <CardContent className="pt-6">
+    <div className="text-3xl font-bold text-primary-600">10,000+</div>
+    <p className="text-sm text-neutral-600">Lowongan Aktif</p>
+  </CardContent>
+</Card>
+```
+
+---
+
+## 프로젝트 시작 명령어
+
+```bash
+# 프로젝트 생성
+npx create-next-app@latest indonesia-jobs --typescript --tailwind --app
+
+# 필수 패키지 설치
+npm install @prisma/client next-auth@beta react-hook-form zod @hookform/resolvers/zod
+npm install zustand @tanstack/react-query
+npm install -D prisma
+
+# UI 컴포넌트
+npx shadcn-ui@latest init
+npx shadcn-ui@latest add button card input form table dialog badge
+
+# Prisma 초기화
+npx prisma init
+
+# 개발 서버 시작
+npm run dev
+```
+
+---
+
+## 배포 체크리스트
+
+- [ ] 환경변수 설정 (Vercel)
+  - DATABASE_URL
+  - NEXTAUTH_SECRET
+  - GOOGLE_CLIENT_ID/SECRET
+  - CLOUDINARY_URL
+
+- [ ] Prisma 마이그레이션 실행
+- [ ] Google Search Console 등록
+- [ ] Google Analytics 4 설정
+- [ ] sitemap.xml 제출
+- [ ] robots.txt 확인
+- [ ] PageSpeed Insights 테스트
+- [ ] 모바일 반응형 테스트
+- [ ] 크로스 브라우저 테스트
+
+---
+
+## 유지보수 계획
+
+### 주간
+- 신규 공고 품질 모니터링
+- 사용자 신고 처리
+- 성능 메트릭 확인
+
+### 월간
+- 사용자 피드백 수집 및 개선
+- SEO 순위 확인
+- 새 기능 기획
+
+### 분기별
+- 보안 업데이트
+- 의존성 패키지 업데이트
+- A/B 테스트 실시

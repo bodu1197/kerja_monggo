@@ -2,8 +2,8 @@
 
 export default function BottomTab({ onSearchClick }) {
   return (
-    <div style={{position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'white', borderTop: '1px solid #e0e0e0', boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)', width: '100%'}}>
-      <nav style={{height: '70px', maxWidth: '600px', margin: '0 auto', display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
+    <div className="fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t border-[#e0e0e0] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] w-full">
+      <nav className="h-[70px] max-w-[600px] mx-auto flex justify-around items-center">
         <button className="flex flex-col items-center justify-center gap-1 px-4 py-2 bg-transparent border-none cursor-pointer transition-all text-[#666] hover:text-black active:scale-95">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>

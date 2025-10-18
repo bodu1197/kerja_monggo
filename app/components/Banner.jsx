@@ -5,7 +5,7 @@ export default function Banner() {
         <h1 className="text-[32px] font-bold text-white m-0 leading-tight" style={{textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'}}>
           Temukan Pekerjaan Impian Anda
         </h1>
-        <p className="text-base font-normal m-0" style={{letterSpacing: '0.5px', color: 'rgba(255, 255, 255, 0.9)'}}>
+        <p className="text-base font-normal m-0 tracking-wide" style={{color: 'rgba(255, 255, 255, 0.9)'}}>
           Connecting talents with opportunities
         </p>
       </div>

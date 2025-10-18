@@ -1,6 +1,6 @@
 export default function FilterBar({ filterSummary, onFilterClick }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-gray-300 sticky top-0 z-10">
+    <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-[#e0e0e0] sticky top-0 z-10">
       <button
         onClick={onFilterClick}
         className="flex items-center gap-1.5 px-4 py-2 bg-[#2c3e50] text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all hover:bg-[#34495e]"
