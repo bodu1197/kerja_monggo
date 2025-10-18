@@ -243,34 +243,44 @@ export default function PostJobPage() {
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">지역 (Wilayah)</label>
               <div className="space-y-3">
-                <select
-                  value={formData.province_id}
-                  onChange={(e) => setFormData({...formData, province_id: e.target.value, regency_id: ''})}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
-                  required
-                >
-                  <option value="">시/도 선택</option>
-                  {provinces.map((province) => (
-                    <option key={province.province_id} value={province.province_id}>
-                      {province.province_name}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label htmlFor="province_id" className="sr-only">시/도 선택</label>
+                  <select
+                    id="province_id"
+                    value={formData.province_id}
+                    onChange={(e) => setFormData({...formData, province_id: e.target.value, regency_id: ''})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                    required
+                    aria-label="시/도 선택"
+                  >
+                    <option value="">시/도 선택</option>
+                    {provinces.map((province) => (
+                      <option key={province.province_id} value={province.province_id}>
+                        {province.province_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  value={formData.regency_id}
-                  onChange={(e) => setFormData({...formData, regency_id: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
-                  disabled={!formData.province_id}
-                  required
-                >
-                  <option value="">시/군/구 선택</option>
-                  {regencies.map((regency) => (
-                    <option key={regency.regency_id} value={regency.regency_id}>
-                      {regency.regency_name}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label htmlFor="regency_id" className="sr-only">시/군/구 선택</label>
+                  <select
+                    id="regency_id"
+                    value={formData.regency_id}
+                    onChange={(e) => setFormData({...formData, regency_id: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
+                    disabled={!formData.province_id}
+                    required
+                    aria-label="시/군/구 선택"
+                  >
+                    <option value="">시/군/구 선택</option>
+                    {regencies.map((regency) => (
+                      <option key={regency.regency_id} value={regency.regency_id}>
+                        {regency.regency_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -278,43 +288,55 @@ export default function PostJobPage() {
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">직업 분야 (Pekerjaan)</label>
               <div className="space-y-3">
-                <select
-                  value={formData.category_id}
-                  onChange={(e) => setFormData({...formData, category_id: e.target.value, subcategory_id: ''})}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
-                  required
-                >
-                  <option value="">대분류 선택</option>
-                  {categories.map((category) => (
-                    <option key={category.category_id} value={category.category_id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label htmlFor="category_id" className="sr-only">직업 대분류 선택</label>
+                  <select
+                    id="category_id"
+                    value={formData.category_id}
+                    onChange={(e) => setFormData({...formData, category_id: e.target.value, subcategory_id: ''})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                    required
+                    aria-label="직업 대분류 선택"
+                  >
+                    <option value="">대분류 선택</option>
+                    {categories.map((category) => (
+                      <option key={category.category_id} value={category.category_id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  value={formData.subcategory_id}
-                  onChange={(e) => setFormData({...formData, subcategory_id: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
-                  disabled={!formData.category_id}
-                >
-                  <option value="">소분류 선택 (선택사항)</option>
-                  {subcategories.map((subcategory) => (
-                    <option key={subcategory.category_id} value={subcategory.category_id}>
-                      {subcategory.name}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label htmlFor="subcategory_id" className="sr-only">직업 소분류 선택</label>
+                  <select
+                    id="subcategory_id"
+                    value={formData.subcategory_id}
+                    onChange={(e) => setFormData({...formData, subcategory_id: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
+                    disabled={!formData.category_id}
+                    aria-label="직업 소분류 선택"
+                  >
+                    <option value="">소분류 선택 (선택사항)</option>
+                    {subcategories.map((subcategory) => (
+                      <option key={subcategory.category_id} value={subcategory.category_id}>
+                        {subcategory.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
             {/* 고용 형태 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">고용 형태</label>
+              <label htmlFor="employment_type" className="block text-sm font-semibold text-slate-700 mb-2">고용 형태</label>
               <select
+                id="employment_type"
                 value={formData.employment_type}
                 onChange={(e) => setFormData({...formData, employment_type: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                aria-label="고용 형태 선택"
               >
                 <option value="full_time">풀타임</option>
                 <option value="part_time">파트타임</option>
@@ -326,11 +348,13 @@ export default function PostJobPage() {
 
             {/* 경력 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">경력</label>
+              <label htmlFor="experience_level" className="block text-sm font-semibold text-slate-700 mb-2">경력</label>
               <select
+                id="experience_level"
                 value={formData.experience_level}
                 onChange={(e) => setFormData({...formData, experience_level: e.target.value})}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                aria-label="경력 선택"
               >
                 <option value="entry">신입</option>
                 <option value="junior">주니어 (1-3년)</option>
