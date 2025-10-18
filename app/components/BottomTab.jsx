@@ -13,7 +13,7 @@ export default function BottomTab() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t border-[#e0e0e0] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] w-full md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t border-[#e0e0e0] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] w-full">
       <nav className="h-[70px] max-w-[600px] mx-auto flex justify-around items-center">
         {/* 홈 */}
         <button
