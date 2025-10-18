@@ -10,6 +10,7 @@ export default function PostJobPage() {
   const [provinces, setProvinces] = useState([])
   const [regencies, setRegencies] = useState([])
   const [categories, setCategories] = useState([])
+  const [subcategories, setSubcategories] = useState([])
 
   const [formData, setFormData] = useState({
     type: 'job', // 'job' (구직) or 'worker' (구인)
@@ -18,6 +19,7 @@ export default function PostJobPage() {
     province_id: '',
     regency_id: '',
     category_id: '',
+    subcategory_id: '',
     employment_type: 'full_time',
     experience_level: 'entry',
     salary_min: '',
@@ -38,6 +40,15 @@ export default function PostJobPage() {
     }
   }, [formData.province_id])
 
+  // Load subcategories when category changes
+  useEffect(() => {
+    if (formData.category_id) {
+      loadSubcategories(formData.category_id)
+    } else {
+      setSubcategories([])
+    }
+  }, [formData.category_id])
+
   const loadInitialData = async () => {
     const supabase = createClient()
 
@@ -47,10 +58,11 @@ export default function PostJobPage() {
       .select('province_id, province_name')
       .order('province_name')
 
-    // Load categories
+    // Load parent categories only (1차 카테고리)
     const { data: categoriesData } = await supabase
       .from('categories')
       .select('category_id, name')
+      .is('parent_category', null)
       .order('name')
 
     setProvinces(provincesData || [])
@@ -66,6 +78,17 @@ export default function PostJobPage() {
       .order('regency_name')
 
     setRegencies(data || [])
+  }
+
+  const loadSubcategories = async (categoryId) => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('categories')
+      .select('category_id, name')
+      .eq('parent_category', categoryId)
+      .order('name')
+
+    setSubcategories(data || [])
   }
 
   const handleSubmit = async (e) => {
@@ -124,12 +147,12 @@ export default function PostJobPage() {
         description: formData.description,
         requirements: formData.description, // Using description as requirements for now
         regency_id: formData.regency_id,
-        category_id: formData.category_id,
+        category_id: formData.subcategory_id || formData.category_id, // Use subcategory if selected, otherwise parent category
         employment_type: formData.employment_type,
         experience_level: formData.experience_level,
         salary_min: formData.salary_min ? parseInt(formData.salary_min) : null,
         salary_max: formData.salary_max ? parseInt(formData.salary_max) : null,
-        job_status: 'active'
+        status: 'active'
       }
 
       // Insert job into database
@@ -254,19 +277,35 @@ export default function PostJobPage() {
             {/* 직업 카테고리 */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">직업 분야 (Pekerjaan)</label>
-              <select
-                value={formData.category_id}
-                onChange={(e) => setFormData({...formData, category_id: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
-                required
-              >
-                <option value="">분야 선택</option>
-                {categories.map((category) => (
-                  <option key={category.category_id} value={category.category_id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-3">
+                <select
+                  value={formData.category_id}
+                  onChange={(e) => setFormData({...formData, category_id: e.target.value, subcategory_id: ''})}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none"
+                  required
+                >
+                  <option value="">대분류 선택</option>
+                  {categories.map((category) => (
+                    <option key={category.category_id} value={category.category_id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={formData.subcategory_id}
+                  onChange={(e) => setFormData({...formData, subcategory_id: e.target.value})}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none appearance-none disabled:bg-gray-100"
+                  disabled={!formData.category_id}
+                >
+                  <option value="">소분류 선택 (선택사항)</option>
+                  {subcategories.map((subcategory) => (
+                    <option key={subcategory.category_id} value={subcategory.category_id}>
+                      {subcategory.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* 고용 형태 */}
