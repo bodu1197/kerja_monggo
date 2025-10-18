@@ -1,12 +1,41 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #10b981;
-  --color-dark-100: #1f2937;
-  --color-dark-200: #111827;
+@layer theme {
+  :root {
+    --color-primary: #10b981;
+    --color-dark-100: #1f2937;
+    --color-dark-200: #111827;
+  }
+}
+
+@layer utilities {
+  .bg-dark-100 {
+    background-color: #1f2937;
+  }
+  .bg-dark-200 {
+    background-color: #111827;
+  }
+  .text-primary {
+    color: #10b981;
+  }
+  .border-primary {
+    border-color: #10b981;
+  }
+  .hover\:text-primary:hover {
+    color: #10b981;
+  }
+  .hover\:border-primary:hover {
+    border-color: #10b981;
+  }
+  .bg-primary {
+    background-color: #10b981;
+  }
+  .hover\:bg-green-600:hover {
+    background-color: #059669;
+  }
 }
 
 body {
-  background-color: var(--color-dark-200);
+  background-color: #111827;
   color: #f3f4f6;
 }
