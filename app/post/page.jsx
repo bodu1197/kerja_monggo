@@ -42,15 +42,16 @@ export default function PostJobPage() {
 
   // Load subcategories when category changes
   useEffect(() => {
-    if (formData.category_id) {
+    if (formData.category_id && categories.length > 0) {
       loadSubcategories(formData.category_id)
     } else {
       setSubcategories([])
     }
-  }, [formData.category_id])
+  }, [formData.category_id, categories])
 
   const loadInitialData = async () => {
     const supabase = createClient()
+    console.log('🚀 loadInitialData 시작')
 
     // Check cache first
     const cachedProvinces = localStorage.getItem('provinces')
@@ -61,10 +62,15 @@ export default function PostJobPage() {
 
     // Use cache if valid (less than 24 hours old)
     if (cachedProvinces && cachedCategories && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
-      setProvinces(JSON.parse(cachedProvinces))
-      setCategories(JSON.parse(cachedCategories))
+      const provinces = JSON.parse(cachedProvinces)
+      const categories = JSON.parse(cachedCategories)
+      console.log('💾 캐시에서 로드 - Provinces:', provinces.length, '개, Categories:', categories.length, '개')
+      setProvinces(provinces)
+      setCategories(categories)
       return
     }
+
+    console.log('🌐 API에서 새로 로드')
 
     // Load provinces
     const { data: provincesData } = await supabase
@@ -78,6 +84,8 @@ export default function PostJobPage() {
       .select('category_id, name')
       .is('parent_category', null)
       .order('name')
+
+    console.log('✅ API 로드 완료 - Provinces:', provincesData?.length || 0, '개, Categories:', categoriesData?.length || 0, '개')
 
     // Cache the data
     if (provincesData) {
@@ -124,6 +132,19 @@ export default function PostJobPage() {
   const loadSubcategories = async (categoryId) => {
     const supabase = createClient()
 
+    console.log('🔍 loadSubcategories 호출:', categoryId)
+    console.log('📦 categories 배열:', categories)
+
+    // Find the category name from the categories array
+    const selectedCategory = categories.find(c => c.category_id == categoryId)
+    console.log('🎯 선택된 카테고리:', selectedCategory)
+
+    if (!selectedCategory) {
+      console.log('⚠️ 카테고리를 찾을 수 없음')
+      setSubcategories([])
+      return
+    }
+
     // Check cache
     const cacheKey = `subcategories_${categoryId}`
     const cached = localStorage.getItem(cacheKey)
@@ -132,15 +153,26 @@ export default function PostJobPage() {
     const oneDay = 24 * 60 * 60 * 1000
 
     if (cached && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
-      setSubcategories(JSON.parse(cached))
+      const cachedData = JSON.parse(cached)
+      console.log('💾 캐시에서 로드:', cachedData.length, '개')
+      setSubcategories(cachedData)
       return
     }
 
-    const { data } = await supabase
+    console.log('🌐 API 요청:', selectedCategory.name)
+    const { data, error } = await supabase
       .from('categories')
       .select('category_id, name')
-      .eq('parent_category', categoryId)
+      .eq('parent_category', selectedCategory.name)
       .order('name')
+
+    if (error) {
+      console.error('❌ 오류:', error)
+      setSubcategories([])
+      return
+    }
+
+    console.log('✅ 로드 완료:', data?.length || 0, '개')
 
     if (data) {
       localStorage.setItem(cacheKey, JSON.stringify(data))
@@ -237,11 +269,28 @@ export default function PostJobPage() {
     }
   }
 
+  const clearAllCache = () => {
+    localStorage.clear()
+    console.log('🗑️ 모든 캐시 삭제 완료')
+    alert('캐시가 삭제되었습니다. 페이지를 새로고침합니다.')
+    window.location.reload()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-[600px] mx-auto px-5">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-slate-700 mb-6">구인/구직 등록</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-slate-700">구인/구직 등록</h1>
+            <button
+              type="button"
+              onClick={clearAllCache}
+              className="text-xs px-3 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors"
+              title="드롭다운 데이터가 표시되지 않으면 클릭하세요"
+            >
+              캐시 삭제
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 유형 선택 */}
