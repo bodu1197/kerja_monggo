@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
               <div className="px-4 py-3">
                 <div className="flex items-center justify-between">
                   <a href="/" className="text-xl font-bold">
-                    🔍 KerjaMonggo
+                    KerjaMonggo
                   </a>
                   <button className="p-2 hover:bg-primary-dark rounded-lg transition">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
