@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* Line clamp utility */
 .line-clamp-2 {
   overflow: hidden;
