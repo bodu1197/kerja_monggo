@@ -436,26 +436,34 @@ export default function PostJobPage() {
 
             {/* 급여 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">급여 (IDR)</label>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">급여 (IDR)</div>
               <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="number"
-                  id="salary_min"
-                  name="salary_min"
-                  value={formData.salary_min}
-                  onChange={(e) => setFormData({...formData, salary_min: e.target.value})}
-                  className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                  placeholder="최소"
-                />
-                <input
-                  type="number"
-                  id="salary_max"
-                  name="salary_max"
-                  value={formData.salary_max}
-                  onChange={(e) => setFormData({...formData, salary_max: e.target.value})}
-                  className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                  placeholder="최대"
-                />
+                <div>
+                  <label htmlFor="salary_min" className="sr-only">최소 급여</label>
+                  <input
+                    type="number"
+                    id="salary_min"
+                    name="salary_min"
+                    value={formData.salary_min}
+                    onChange={(e) => setFormData({...formData, salary_min: e.target.value})}
+                    className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none w-full"
+                    placeholder="최소"
+                    aria-label="최소 급여"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="salary_max" className="sr-only">최대 급여</label>
+                  <input
+                    type="number"
+                    id="salary_max"
+                    name="salary_max"
+                    value={formData.salary_max}
+                    onChange={(e) => setFormData({...formData, salary_max: e.target.value})}
+                    className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none w-full"
+                    placeholder="최대"
+                    aria-label="최대 급여"
+                  />
+                </div>
               </div>
             </div>
 
