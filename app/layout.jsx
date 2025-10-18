@@ -1,5 +1,4 @@
 import './globals.css'
-import MainBanner from './components/MainBanner'
 import { SupabaseProvider } from './components/SupabaseProvider'
 
 export const metadata = {
@@ -29,7 +28,6 @@ export default function RootLayout({ children }) {
               </div>
             </div>
           </nav>
-          <MainBanner />
           {children}
         </SupabaseProvider>
       </body>

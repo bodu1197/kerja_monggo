@@ -13,6 +13,10 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
   const [jobs, setJobs] = useState(initialJobs)
   const [loading, setLoading] = useState(false)
 
+  console.log('HiringPage - provinces:', provinces?.length, provinces)
+  console.log('HiringPage - categories:', categories?.length, categories)
+  console.log('HiringPage - jobs:', jobs?.length, jobs)
+
   const [selectedProvince, setSelectedProvince] = useState('')
   const [selectedRegency, setSelectedRegency] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -112,8 +116,8 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
           onChange={(e) => setSelectedProvince(e.target.value)}
           className="px-4 py-2 bg-dark-100 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-primary"
         >
-          <option value="">Semua Provinsi</option>
-          {provinces.map(province => (
+          <option value="">Semua Provinsi ({provinces?.length || 0})</option>
+          {provinces?.map(province => (
             <option key={province.id} value={province.id}>{province.name}</option>
           ))}
         </select>
@@ -135,8 +139,8 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="px-4 py-2 bg-dark-100 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-primary"
         >
-          <option value="">Semua Kategori</option>
-          {categories.map(category => (
+          <option value="">Semua Kategori ({categories?.length || 0})</option>
+          {categories?.map(category => (
             <option key={category.id} value={category.id}>{category.name}</option>
           ))}
         </select>
