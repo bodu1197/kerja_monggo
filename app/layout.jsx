@@ -18,21 +18,27 @@ export default function RootLayout({ children }) {
             <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50" style={{maxWidth: '600px', margin: '0 auto', height: '60px'}}>
               <div className="h-full flex items-center justify-center">
                 <a href="/" className="text-2xl font-bold text-black">
-                  KerjaMonggo
+                  Kerja Monggo
                 </a>
               </div>
             </header>
 
-            {/* Main Content with padding for fixed header and footer */}
+            {/* Main Content with padding for fixed header and bottom tab */}
             <main className="min-h-screen bg-[#fafafa]" style={{paddingTop: '60px', paddingBottom: '70px'}}>
               {/* Banner - 600x220 */}
               <BannerSearch />
 
+              {/* Body Content */}
               {children}
+
+              {/* Footer (normal, scrollable) */}
+              <footer className="w-full py-5 text-center border-t border-gray-200 bg-white text-[#666] text-sm">
+                <p>&copy; 2024 Company Name</p>
+              </footer>
             </main>
 
-            {/* Footer - FIXED */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50" style={{maxWidth: '600px', margin: '0 auto', height: '70px', boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)'}}>
+            {/* Bottom Tab - FIXED */}
+            <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e0e0e0] z-50" style={{maxWidth: '600px', margin: '0 auto', height: '70px', boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)', transform: 'translateX(0)'}}>
               <div className="h-full flex justify-around items-center">
                 <a href="/" className="flex flex-col items-center justify-center gap-1 px-4 py-2 text-[#666] hover:text-black transition-all active:scale-95">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +65,7 @@ export default function RootLayout({ children }) {
                   <span className="text-xs font-medium">Profil</span>
                 </a>
               </div>
-            </footer>
+            </nav>
           </div>
         </SupabaseProvider>
       </body>
