@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 
-export default function BottomTab() {
+export default function BottomTab({ onSearchClick }) {
   const router = useRouter()
   const pathname = usePathname()
 
@@ -27,6 +27,18 @@ export default function BottomTab() {
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
           <span className="text-xs font-medium">Beranda</span>
+        </button>
+
+        {/* 검색 */}
+        <button
+          onClick={onSearchClick}
+          className="flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 text-[#666]"
+        >
+          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <span className="text-xs font-medium">Cari</span>
         </button>
 
         {/* 구인등록 */}
