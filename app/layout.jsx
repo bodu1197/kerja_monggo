@@ -14,8 +14,8 @@ export default function RootLayout({ children }) {
       <body>
         <SupabaseProvider>
           <div className="mobile-container">
-            {/* Header - Logo Center */}
-            <header className="bg-white border-b border-gray-200">
+            {/* Header - Logo Center - FIXED */}
+            <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50" style={{maxWidth: '600px', margin: '0 auto'}}>
               <div className="px-4 py-4">
                 <div className="flex items-center justify-center">
                   <a href="/" className="text-2xl font-bold text-primary">
@@ -25,16 +25,16 @@ export default function RootLayout({ children }) {
               </div>
             </header>
 
-            {/* Banner - 600x220 */}
-            <BannerSearch />
+            {/* Main Content with padding for fixed header and footer */}
+            <main className="min-h-screen bg-gray-50" style={{paddingTop: '72px', paddingBottom: '140px'}}>
+              {/* Banner - 600x220 */}
+              <BannerSearch />
 
-            {/* Main Content */}
-            <main className="min-h-screen bg-gray-50">
               {children}
             </main>
 
-            {/* Footer */}
-            <footer className="bg-white border-t border-gray-200 py-6">
+            {/* Footer - FIXED */}
+            <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-6 z-50" style={{maxWidth: '600px', margin: '0 auto'}}>
               <div className="px-4">
                 {/* Navigation Links */}
                 <div className="flex justify-around items-center mb-6">
