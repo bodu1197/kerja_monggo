@@ -246,8 +246,8 @@ export default function PostJobPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 유형 선택 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">유형</label>
-              <div className="flex gap-3">
+              <div className="block text-sm font-semibold text-slate-700 mb-2">유형</div>
+              <div className="flex gap-3" role="group" aria-label="유형 선택">
                 <button
                   type="button"
                   onClick={() => setFormData({...formData, type: 'job'})}
@@ -304,7 +304,7 @@ export default function PostJobPage() {
 
             {/* 지역 선택 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">지역 (Wilayah)</label>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">지역 (Wilayah)</div>
               <div className="space-y-3">
                 <div>
                   <label htmlFor="province_id" className="sr-only">시/도 선택</label>
@@ -351,7 +351,7 @@ export default function PostJobPage() {
 
             {/* 직업 카테고리 */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">직업 분야 (Pekerjaan)</label>
+              <div className="block text-sm font-semibold text-slate-700 mb-2">직업 분야 (Pekerjaan)</div>
               <div className="space-y-3">
                 <div>
                   <label htmlFor="category_id" className="sr-only">직업 대분류 선택</label>
