@@ -52,6 +52,20 @@ export default function PostJobPage() {
   const loadInitialData = async () => {
     const supabase = createClient()
 
+    // Check cache first
+    const cachedProvinces = localStorage.getItem('provinces')
+    const cachedCategories = localStorage.getItem('categories')
+    const cacheTime = localStorage.getItem('provincesCategories_cacheTime')
+    const now = Date.now()
+    const oneDay = 24 * 60 * 60 * 1000 // 24 hours
+
+    // Use cache if valid (less than 24 hours old)
+    if (cachedProvinces && cachedCategories && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      setProvinces(JSON.parse(cachedProvinces))
+      setCategories(JSON.parse(cachedCategories))
+      return
+    }
+
     // Load provinces
     const { data: provincesData } = await supabase
       .from('provinces')
@@ -65,28 +79,73 @@ export default function PostJobPage() {
       .is('parent_category', null)
       .order('name')
 
+    // Cache the data
+    if (provincesData) {
+      localStorage.setItem('provinces', JSON.stringify(provincesData))
+    }
+    if (categoriesData) {
+      localStorage.setItem('categories', JSON.stringify(categoriesData))
+    }
+    localStorage.setItem('provincesCategories_cacheTime', now.toString())
+
     setProvinces(provincesData || [])
     setCategories(categoriesData || [])
   }
 
   const loadRegencies = async (provinceId) => {
     const supabase = createClient()
+
+    // Check cache
+    const cacheKey = `regencies_${provinceId}`
+    const cached = localStorage.getItem(cacheKey)
+    const cacheTime = localStorage.getItem(`${cacheKey}_time`)
+    const now = Date.now()
+    const oneDay = 24 * 60 * 60 * 1000
+
+    if (cached && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      setRegencies(JSON.parse(cached))
+      return
+    }
+
     const { data } = await supabase
       .from('regencies')
       .select('regency_id, regency_name')
       .eq('province_id', provinceId)
       .order('regency_name')
 
+    if (data) {
+      localStorage.setItem(cacheKey, JSON.stringify(data))
+      localStorage.setItem(`${cacheKey}_time`, now.toString())
+    }
+
     setRegencies(data || [])
   }
 
   const loadSubcategories = async (categoryId) => {
     const supabase = createClient()
+
+    // Check cache
+    const cacheKey = `subcategories_${categoryId}`
+    const cached = localStorage.getItem(cacheKey)
+    const cacheTime = localStorage.getItem(`${cacheKey}_time`)
+    const now = Date.now()
+    const oneDay = 24 * 60 * 60 * 1000
+
+    if (cached && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      setSubcategories(JSON.parse(cached))
+      return
+    }
+
     const { data } = await supabase
       .from('categories')
       .select('category_id, name')
       .eq('parent_category', categoryId)
       .order('name')
+
+    if (data) {
+      localStorage.setItem(cacheKey, JSON.stringify(data))
+      localStorage.setItem(`${cacheKey}_time`, now.toString())
+    }
 
     setSubcategories(data || [])
   }
