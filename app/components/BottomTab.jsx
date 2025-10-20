@@ -19,7 +19,7 @@ export default function BottomTab() {
         <button
           onClick={() => router.push('/')}
           className={`flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 ${
-            isActive('/') ? 'text-slate-700' : 'text-[#666]'
+            isActive('/') ? 'text-[#2c3e50]' : 'text-[#666]'
           }`}
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -33,7 +33,7 @@ export default function BottomTab() {
         <button
           onClick={() => router.push('/post')}
           className={`flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 ${
-            isActive('/post') ? 'text-slate-700' : 'text-[#666]'
+            isActive('/post') ? 'text-[#2c3e50]' : 'text-[#666]'
           }`}
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -47,7 +47,7 @@ export default function BottomTab() {
         <button
           onClick={() => router.push('/profile')}
           className={`flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 ${
-            isActive('/profile') ? 'text-green-600' : 'text-[#666]'
+            isActive('/profile') ? 'text-[#2c3e50]' : 'text-[#666]'
           }`}
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -64,7 +64,7 @@ export default function BottomTab() {
         <button
           onClick={() => router.push('/nearby')}
           className={`flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 ${
-            isActive('/nearby') ? 'text-blue-600' : 'text-[#666]'
+            isActive('/nearby') ? 'text-[#2c3e50]' : 'text-[#666]'
           }`}
         >
           <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -78,7 +78,7 @@ export default function BottomTab() {
         <button
           onClick={() => router.push('/account')}
           className={`flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 ${
-            isActive('/account') ? 'text-slate-700' : 'text-[#666]'
+            isActive('/account') ? 'text-[#2c3e50]' : 'text-[#666]'
           }`}
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
