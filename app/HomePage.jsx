@@ -257,7 +257,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
 
         {/* 검색 필터 영역 */}
         <div className="max-w-[1200px] mx-auto py-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-[10px] md:p-6">
             {/* 유형 선택 */}
             <div className="mb-6">
               <div className="flex gap-2">
