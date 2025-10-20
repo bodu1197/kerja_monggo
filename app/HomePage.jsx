@@ -340,32 +340,33 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
           </div>
 
           {/* 검색 결과 */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">
-              {loading ? '로딩 중...' : `검색 결과 (${filteredJobs.length}개)`}
-            </h3>
-            {!loading && filteredJobs.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                {hasSearched ? (
-                  <>
-                    <p className="text-lg">검색 결과가 없습니다.</p>
-                    <p className="text-sm mt-2">다른 조건으로 검색해보세요.</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-lg">등록된 구인구직 정보가 없습니다.</p>
-                    <p className="text-sm mt-2">첫 번째로 등록해보세요!</p>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-                {filteredJobs.map((job) => (
-                  <JobCard key={`${job.type}-${job.id}`} job={job} />
-                ))}
-              </div>
-            )}
-          </div>
+          {hasSearched && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">
+                {loading ? '로딩 중...' :
+                  selectedType === 'job' ? `구직 결과 (${filteredJobs.length}개)` :
+                  selectedType === 'worker' ? `구인 결과 (${filteredJobs.length}개)` :
+                  `검색 결과 (${filteredJobs.length}개)`
+                }
+              </h3>
+              {!loading && filteredJobs.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-lg">
+                    {selectedType === 'job' ? '구직 결과가 없습니다.' :
+                     selectedType === 'worker' ? '구인 결과가 없습니다.' :
+                     '검색 결과가 없습니다.'}
+                  </p>
+                  <p className="text-sm mt-2">다른 조건으로 검색해보세요.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+                  {filteredJobs.map((job) => (
+                    <JobCard key={`${job.type}-${job.id}`} job={job} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
