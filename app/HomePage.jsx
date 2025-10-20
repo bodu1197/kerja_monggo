@@ -13,7 +13,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   const [allJobs, setAllJobs] = useState([])
   const [filteredJobs, setFilteredJobs] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedType, setSelectedType] = useState('all')
+  const [selectedType, setSelectedType] = useState('')
   const [provinces] = useState(initialProvinces)
   const [categories] = useState(initialCategories)
   const [region1, setRegion1] = useState('')
@@ -167,7 +167,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   const applyFilters = () => {
     let filtered = allJobs.filter(job => {
       // Filter by type
-      if (selectedType !== 'all' && job.type !== selectedType) return false
+      if (selectedType && job.type !== selectedType) return false
 
       // Filter by province
       if (region1) {
@@ -200,7 +200,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   }
 
   const handleReset = () => {
-    setSelectedType('all')
+    setSelectedType('')
     setRegion1('')
     setRegion2('')
     setJob1('')
@@ -224,7 +224,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
             <div className="mb-6">
               <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">유형</label>
               <div className="flex gap-2">
-                {['all', 'job', 'worker'].map((type) => (
+                {['job', 'worker'].map((type) => (
                   <button
                     key={type}
                     onClick={() => setSelectedType(type)}
@@ -234,7 +234,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
                         : 'bg-white border-[#e0e0e0] text-[#666] hover:border-[#2c3e50] hover:text-[#2c3e50]'
                     }`}
                   >
-                    {type === 'all' ? '전체' : type === 'job' ? '구직' : '구인'}
+                    {type === 'job' ? '구직' : '구인'}
                   </button>
                 ))}
               </div>
