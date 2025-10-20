@@ -225,11 +225,8 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
         {/* 검색 필터 영역 */}
         <div className="max-w-[1200px] mx-auto py-6">
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-[#2c3e50] mb-6">검색 필터</h2>
-
             {/* 유형 선택 */}
             <div className="mb-6">
-              <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">유형</label>
               <div className="flex gap-2">
                 {['job', 'worker'].map((type) => (
                   <button
@@ -249,7 +246,6 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
 
             {/* 지역 선택 */}
             <div className="mb-6">
-              <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">Wilayah (지역)</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="relative">
                   <select
@@ -292,7 +288,6 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
 
             {/* 직업 선택 */}
             <div className="mb-6">
-              <label className="block text-[15px] font-semibold text-[#2c3e50] mb-3">Pekerjaan (직업)</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="relative">
                   <select
