@@ -22,6 +22,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   const [job2, setJob2] = useState('')
   const [region2Options, setRegion2Options] = useState([])
   const [job2Options, setJob2Options] = useState([])
+  const [hasSearched, setHasSearched] = useState(false)
 
   // Debug: Check if data is loaded
   useEffect(() => {
@@ -59,6 +60,12 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   // Apply filters when any filter changes
   useEffect(() => {
     applyFilters()
+    // 필터가 하나라도 적용되었는지 확인
+    if (selectedType || region1 || region2 || job1 || job2) {
+      setHasSearched(true)
+    } else {
+      setHasSearched(false)
+    }
   }, [selectedType, region1, region2, job1, job2, allJobs])
 
   const loadAllJobs = async () => {
@@ -344,8 +351,17 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
             </h3>
             {!loading && filteredJobs.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">검색 결과가 없습니다.</p>
-                <p className="text-sm mt-2">다른 조건으로 검색해보세요.</p>
+                {hasSearched ? (
+                  <>
+                    <p className="text-lg">검색 결과가 없습니다.</p>
+                    <p className="text-sm mt-2">다른 조건으로 검색해보세요.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg">등록된 구인구직 정보가 없습니다.</p>
+                    <p className="text-sm mt-2">첫 번째로 등록해보세요!</p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">

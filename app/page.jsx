@@ -10,17 +10,21 @@ export default async function Page() {
   const supabase = await createClient()
 
   // provinces 데이터 가져오기
-  const { data: provinces } = await supabase
+  const { data: provinces, error: provincesError } = await supabase
     .from('provinces')
     .select('province_id, province_name')
     .order('province_name')
 
   // categories 데이터 가져오기 (1차 카테고리만)
-  const { data: categories } = await supabase
+  const { data: categories, error: categoriesError } = await supabase
     .from('categories')
     .select('category_id, name, icon')
     .is('parent_category', null)
     .order('category_id')
+
+  // Server-side logging
+  console.log('[SERVER] Provinces:', provinces?.length || 0, 'Error:', provincesError?.message)
+  console.log('[SERVER] Categories:', categories?.length || 0, 'Error:', categoriesError?.message)
 
   return (
     <HomePage
