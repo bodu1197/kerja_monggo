@@ -1,10 +1,12 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function BottomTab() {
   const router = useRouter()
   const pathname = usePathname()
+  const { user } = useAuth()
 
   // 현재 경로에 따라 활성 탭 확인
   const isActive = (path) => {
@@ -74,7 +76,7 @@ export default function BottomTab() {
           <span className="text-xs font-medium">Sekitar</span>
         </button>
 
-        {/* 프로필 */}
+        {/* 프로필/로그인 */}
         <button
           onClick={() => router.push('/account')}
           className={`flex flex-col items-center justify-center gap-1 px-3 py-2 bg-transparent border-none cursor-pointer transition-all active:scale-95 ${
@@ -85,7 +87,7 @@ export default function BottomTab() {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
-          <span className="text-xs font-medium">Profil</span>
+          <span className="text-xs font-medium">{user ? 'Profil' : 'Login'}</span>
         </button>
       </nav>
     </div>
