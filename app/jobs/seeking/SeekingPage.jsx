@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import ProductCard from '../../components/ProductCard'
+import JobCard from '../../components/JobCard'
 import LoadingState from '../../components/LoadingState'
 import Footer from '../../components/Footer'
 import { useSupabase } from '../../components/SupabaseProvider'
@@ -27,9 +27,9 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
       const loadRegencies = async () => {
         const { data } = await supabase
           .from('regencies')
-          .select('id, name')
+          .select('regency_id, regency_name')
           .eq('province_id', selectedProvince)
-          .order('name')
+          .order('regency_name')
         setRegencies(data || [])
       }
       loadRegencies()
@@ -44,12 +44,16 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
   useEffect(() => {
     if (selectedCategory) {
       const loadSubcategories = async () => {
-        const { data } = await supabase
-          .from('categories')
-          .select('id, name')
-          .eq('parent_category', selectedCategory)
-          .order('name')
-        setSubcategories(data || [])
+        // selectedCategory는 category_id이므로, 먼저 해당 카테고리의 name을 찾아야 함
+        const selectedCat = categories?.find(c => c.category_id === parseInt(selectedCategory))
+        if (selectedCat) {
+          const { data } = await supabase
+            .from('categories')
+            .select('category_id, name, icon')
+            .eq('parent_category', selectedCat.name)
+            .order('name')
+          setSubcategories(data || [])
+        }
       }
       loadSubcategories()
       setSelectedSubcategory('')
@@ -57,7 +61,7 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
       setSubcategories([])
       setSelectedSubcategory('')
     }
-  }, [selectedCategory, supabase])
+  }, [selectedCategory, categories, supabase])
 
   // 필터 적용
   useEffect(() => {
@@ -67,24 +71,24 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
         .from('job_seeker_posts')
         .select(`
           *,
-          province:provinces(name),
-          regency:regencies(name),
+          province:provinces(province_name),
+          regency:regencies(regency_name),
           category:categories!job_seeker_posts_category_id_fkey(name),
           subcategory:categories!job_seeker_posts_subcategory_id_fkey(name)
         `)
         .eq('status', 'active')
 
-      if (selectedProvince) query = query.eq('province_id', selectedProvince)
-      if (selectedRegency) query = query.eq('regency_id', selectedRegency)
-      if (selectedCategory) query = query.eq('category_id', selectedCategory)
-      if (selectedSubcategory) query = query.eq('subcategory_id', selectedSubcategory)
+      if (selectedProvince) query = query.eq('province_id', parseInt(selectedProvince))
+      if (selectedRegency) query = query.eq('regency_id', parseInt(selectedRegency))
+      if (selectedCategory) query = query.eq('category_id', parseInt(selectedCategory))
+      if (selectedSubcategory) query = query.eq('subcategory_id', parseInt(selectedSubcategory))
 
       const { data } = await query.order('created_at', { ascending: false }).limit(50)
 
       const transformedJobs = data?.map(job => ({
         ...job,
-        province_name: job.province?.name,
-        regency_name: job.regency?.name,
+        province_name: job.province?.province_name,
+        regency_name: job.regency?.regency_name,
         category_name: job.category?.name,
         subcategory_name: job.subcategory?.name,
       })) || []
@@ -112,9 +116,11 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
           onChange={(e) => setSelectedProvince(e.target.value)}
           className="px-4 py-2 bg-dark-100 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-primary"
         >
-          <option value="">Semua Provinsi</option>
-          {provinces.map(province => (
-            <option key={province.id} value={province.id}>{province.name}</option>
+          <option value="">Semua Provinsi ({provinces?.length || 0})</option>
+          {provinces?.map(province => (
+            <option key={province.province_id} value={province.province_id}>
+              {province.province_name}
+            </option>
           ))}
         </select>
 
@@ -126,7 +132,9 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
         >
           <option value="">Semua Kota/Kabupaten</option>
           {regencies.map(regency => (
-            <option key={regency.id} value={regency.id}>{regency.name}</option>
+            <option key={regency.regency_id} value={regency.regency_id}>
+              {regency.regency_name}
+            </option>
           ))}
         </select>
 
@@ -135,9 +143,11 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="px-4 py-2 bg-dark-100 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-primary"
         >
-          <option value="">Semua Kategori</option>
-          {categories.map(category => (
-            <option key={category.id} value={category.id}>{category.name}</option>
+          <option value="">Semua Kategori ({categories?.length || 0})</option>
+          {categories?.map(category => (
+            <option key={category.category_id} value={category.category_id}>
+              {category.icon} {category.name}
+            </option>
           ))}
         </select>
 
@@ -149,7 +159,9 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
         >
           <option value="">Semua Subkategori</option>
           {subcategories.map(subcategory => (
-            <option key={subcategory.id} value={subcategory.id}>{subcategory.name}</option>
+            <option key={subcategory.category_id} value={subcategory.category_id}>
+              {subcategory.icon} {subcategory.name}
+            </option>
           ))}
         </select>
       </div>
@@ -160,7 +172,7 @@ export default function SeekingPage({ initialProvinces, initialCategories, initi
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {jobs.map(job => (
-            <ProductCard key={job.id} job={job} />
+            <JobCard key={job.id} job={job} />
           ))}
         </div>
       )}

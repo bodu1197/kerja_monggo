@@ -1,35 +1,56 @@
-export default function JobCard({ job }) {
+'use client'
+
+import Link from 'next/link'
+
+export default function ProductCard({ job }) {
+  const {
+    id,
+    title,
+    description,
+    province_name,
+    regency_name,
+    category_name,
+    subcategory_name,
+    contact,
+    created_at
+  } = job
+
+  // Determine if it's a job post or job seeker post
+  const isJobPost = job.hasOwnProperty('company_name')
+  const detailUrl = isJobPost ? `/jobs/hiring/${id}` : `/jobs/seeking/${id}`
+
   return (
-    <div className="bg-white rounded-xl p-5 border-2 border-[#e0e0e0] cursor-pointer transition-all duration-300 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-[#2c3e50]">
-      <div className="flex justify-between items-start gap-3 mb-2">
-        <h3 className="text-base font-bold text-[#2c3e50] m-0 leading-tight flex-1">
-          {job.title}
-        </h3>
-        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold whitespace-nowrap ${
-          job.type === 'job' ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#e3f2fd] text-[#1565c0]'
-        }`}>
-          {job.type === 'job' ? '구직' : '구인'}
+    <Link href={detailUrl}>
+      <div className="bg-dark-100 border border-gray-800 rounded-lg p-4 hover:border-primary transition cursor-pointer">
+      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <p className="text-gray-400 text-sm mb-3 line-clamp-2">{description}</p>
+
+      <div className="flex flex-wrap gap-2 mb-3">
+        <span className="px-2 py-1 bg-dark-200 text-primary text-xs rounded">
+          {category_name}
         </span>
+        {subcategory_name && (
+          <span className="px-2 py-1 bg-dark-200 text-gray-300 text-xs rounded">
+            {subcategory_name}
+          </span>
+        )}
       </div>
 
-      <div className="inline-block bg-[#f5f5f5] text-[#666] px-2.5 py-1 rounded-md text-xs font-semibold mb-2.5">
-        {job.category}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-400">
+          {province_name}, {regency_name}
+        </span>
+        {contact && (
+          <span className="text-primary">{contact}</span>
+        )}
       </div>
 
-      <p className="text-[13px] text-[#666] m-0 mb-2.5">
-        {job.region}
-      </p>
-
-      <p className="text-sm text-[#333] leading-relaxed m-0 mb-4 line-clamp-2">
-        {job.description}
-      </p>
-
-      <div className="flex justify-between items-center pt-3 border-t border-[#f0f0f0]">
-        <span className="text-xs text-[#999]">{job.days}일 전</span>
-        <button className="bg-[#2c3e50] text-white border-none px-3 py-1.5 rounded-md text-xs font-semibold cursor-pointer transition-all hover:bg-[#34495e]">
-          자세히 보기
-        </button>
+      {created_at && (
+        <div className="mt-2 text-xs text-gray-500">
+          {new Date(created_at).toLocaleDateString('id-ID')}
+        </div>
+      )}
       </div>
-    </div>
+    </Link>
   )
 }

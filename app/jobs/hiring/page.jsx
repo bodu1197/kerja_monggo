@@ -12,17 +12,17 @@ export default async function Page() {
   // provinces 데이터 가져오기
   const { data: provinces, error: provincesError } = await supabase
     .from('provinces')
-    .select('id, name')
-    .order('name')
+    .select('province_id, province_name')
+    .order('province_name')
 
   console.log('SERVER - Provinces:', provinces?.length, provincesError)
 
-  // categories 데이터 가져오기 (parent_category만)
+  // categories 데이터 가져오기 (1차 카테고리만 - parent_category가 null)
   const { data: categories, error: categoriesError } = await supabase
     .from('categories')
-    .select('id, name, parent_category')
+    .select('category_id, name, icon')
     .is('parent_category', null)
-    .order('name')
+    .order('category_id')
 
   console.log('SERVER - Categories:', categories?.length, categoriesError)
 
@@ -31,8 +31,8 @@ export default async function Page() {
     .from('job_posts')
     .select(`
       *,
-      province:provinces(name),
-      regency:regencies(name),
+      province:provinces(province_name),
+      regency:regencies(regency_name),
       category:categories!job_posts_category_id_fkey(name),
       subcategory:categories!job_posts_subcategory_id_fkey(name)
     `)
@@ -45,8 +45,8 @@ export default async function Page() {
   // 데이터 변환
   const transformedJobs = jobs?.map(job => ({
     ...job,
-    province_name: job.province?.name,
-    regency_name: job.regency?.name,
+    province_name: job.province?.province_name,
+    regency_name: job.regency?.regency_name,
     category_name: job.category?.name,
     subcategory_name: job.subcategory?.name,
   })) || []
