@@ -23,8 +23,8 @@ export default async function Page() {
     .order('category_id')
 
   // Server-side logging
-  console.log('[SERVER] Provinces:', provinces?.length || 0, 'Error:', provincesError?.message)
-  console.log('[SERVER] Categories:', categories?.length || 0, 'Error:', categoriesError?.message)
+  if (provincesError) console.error('[SERVER] Provinces Error:', provincesError)
+  if (categoriesError) console.error('[SERVER] Categories Error:', categoriesError)
 
   return (
     <HomePage
