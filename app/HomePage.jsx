@@ -23,6 +23,14 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   const [region2Options, setRegion2Options] = useState([])
   const [job2Options, setJob2Options] = useState([])
 
+  // Debug: Check if data is loaded
+  useEffect(() => {
+    console.log('HomePage - initialProvinces:', initialProvinces)
+    console.log('HomePage - initialCategories:', initialCategories)
+    console.log('HomePage - provinces:', provinces)
+    console.log('HomePage - categories:', categories)
+  }, [])
+
   // Load all jobs on mount
   useEffect(() => {
     loadAllJobs()
