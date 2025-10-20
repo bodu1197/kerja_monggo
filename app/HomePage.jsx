@@ -223,7 +223,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
         <div className="absolute top-0 left-0 right-0 h-px" style={{background: 'linear-gradient(90deg, transparent, #e0e0e0 20%, #e0e0e0 80%, transparent)'}}></div>
 
         {/* 검색 필터 영역 */}
-        <div className="max-w-[1200px] mx-auto px-5 py-6">
+        <div className="max-w-[1200px] mx-auto py-6">
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-[#2c3e50] mb-6">검색 필터</h2>
 
