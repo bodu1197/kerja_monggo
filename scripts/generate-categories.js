@@ -142,6 +142,17 @@ const categories = [
   { id: 1215, name: 'Electrician', parent: 'Construction & Architecture', icon: '💡' },
   { id: 1216, name: 'Plumber', parent: 'Construction & Architecture', icon: '🚰' },
   { id: 1217, name: 'Welder', parent: 'Construction & Architecture', icon: '🔥' },
+  { id: 1218, name: 'Bricklayer/Mason', parent: 'Construction & Architecture', icon: '🧱' },
+  { id: 1219, name: 'Plasterer', parent: 'Construction & Architecture', icon: '🪛' },
+  { id: 1220, name: 'Tile Setter', parent: 'Construction & Architecture', icon: '🔲' },
+  { id: 1221, name: 'Painter', parent: 'Construction & Architecture', icon: '🎨' },
+  { id: 1222, name: 'Rebar Worker', parent: 'Construction & Architecture', icon: '⚒️' },
+  { id: 1223, name: 'Scaffolder', parent: 'Construction & Architecture', icon: '🪜' },
+  { id: 1224, name: 'Waterproofing Specialist', parent: 'Construction & Architecture', icon: '💧' },
+  { id: 1225, name: 'Glazier', parent: 'Construction & Architecture', icon: '🪟' },
+  { id: 1226, name: 'Roofer', parent: 'Construction & Architecture', icon: '🏠' },
+  { id: 1227, name: 'Crane Operator', parent: 'Construction & Architecture', icon: '🏗️' },
+  { id: 1228, name: 'Heavy Equipment Operator', parent: 'Construction & Architecture', icon: '🚜' },
 
   // 14. Legal & Compliance (1300-1399)
   { id: 1300, name: 'Legal & Compliance', parent: null, icon: '⚖️' },

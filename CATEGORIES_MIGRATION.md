@@ -10,9 +10,9 @@
 
 ## 삽입되는 데이터
 
-- **총 147개의 직업 카테고리**
+- **총 158개의 직업 카테고리**
   - 1차 카테고리: 18개
-  - 2차 카테고리: 129개
+  - 2차 카테고리: 140개
 
 ## 1차 카테고리 목록 (18개)
 
@@ -30,7 +30,7 @@
 | 900 | 🏭 Manufacturing & Production | 6개 |
 | 1000 | 🚚 Logistics & Supply Chain | 6개 |
 | 1100 | 🍽️ Hospitality & Food Service | 8개 |
-| 1200 | 🏗️ Construction & Architecture | 8개 |
+| 1200 | 🏗️ Construction & Architecture | 19개 |
 | 1300 | ⚖️ Legal & Compliance | 5개 |
 | 1400 | 📺 Media & Communications | 7개 |
 | 1500 | 📁 Administrative & Office Support | 6개 |
@@ -44,7 +44,7 @@
 ```sql
 -- 전체 카테고리 수 확인
 SELECT COUNT(*) FROM categories;
--- 결과: 147
+-- 결과: 158
 
 -- 1차 카테고리 확인
 SELECT * FROM categories WHERE parent_category IS NULL ORDER BY category_id;
@@ -84,5 +84,14 @@ ORDER BY category_id;
 ### Design & Creative (8개)
 - Graphic Design, Product Design, Interior Design, Fashion Design
 - Video Editing, Photography, Animation & 3D, Illustration
+
+### Construction & Architecture (19개)
+- Architect, Construction Manager, Site Engineer, Surveyor
+- Carpenter, Electrician, Plumber, Welder
+- **Bricklayer/Mason** (벽돌공/미장공), **Plasterer** (미장공)
+- **Tile Setter** (타일공), **Painter** (페인트공)
+- **Rebar Worker** (철근공), **Scaffolder** (비계공)
+- Waterproofing Specialist, Glazier, Roofer
+- Crane Operator, Heavy Equipment Operator
 
 기타 카테고리는 SQL 파일에서 확인할 수 있습니다.

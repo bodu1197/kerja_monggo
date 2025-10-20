@@ -17,7 +17,7 @@ provinces, regencies, categories 데이터를 Supabase에 삽입하는 방법입
 
    c. `supabase/migrations/20251020000003_insert_categories_data.sql`
    - 18개의 1차 직업 카테고리
-   - 129개의 2차 직업 카테고리 (총 147개)
+   - 140개의 2차 직업 카테고리 (총 158개)
 
 5. 각 SQL을 붙여넣고 **Run** 버튼 클릭
 
@@ -50,7 +50,7 @@ SELECT COUNT(*) FROM regencies;
 
 -- Categories 개수 확인
 SELECT COUNT(*) FROM categories;
--- 결과: 147 (1차: 18개, 2차: 129개)
+-- 결과: 158 (1차: 18개, 2차: 140개)
 
 -- Province별 Regency 개수
 SELECT
@@ -89,7 +89,7 @@ ORDER BY c1.category_id;
 10. 🏭 **Manufacturing & Production** - 6개 하위 카테고리
 11. 🚚 **Logistics & Supply Chain** - 6개 하위 카테고리
 12. 🍽️ **Hospitality & Food Service** - 8개 하위 카테고리
-13. 🏗️ **Construction & Architecture** - 8개 하위 카테고리
+13. 🏗️ **Construction & Architecture** - 19개 하위 카테고리 (벽돌공, 미장공, 타일공 등 포함)
 14. ⚖️ **Legal & Compliance** - 5개 하위 카테고리
 15. 📺 **Media & Communications** - 7개 하위 카테고리
 16. 📁 **Administrative & Office Support** - 6개 하위 카테고리
@@ -100,6 +100,6 @@ ORDER BY c1.category_id;
 
 - **20251020000001_insert_location_data.sql**: Province 데이터 (38 rows)
 - **20251020000002_insert_regencies_data.sql**: Regency 데이터 (514 rows)
-- **20251020000003_insert_categories_data.sql**: 직업 카테고리 데이터 (147 rows)
+- **20251020000003_insert_categories_data.sql**: 직업 카테고리 데이터 (158 rows)
 
 모든 INSERT 문은 `ON CONFLICT DO NOTHING`을 사용하여 중복 데이터를 방지합니다.
