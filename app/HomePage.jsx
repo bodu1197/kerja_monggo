@@ -14,8 +14,8 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   const [filteredJobs, setFilteredJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedType, setSelectedType] = useState('')
-  const [provinces] = useState(initialProvinces)
-  const [categories] = useState(initialCategories)
+  const [provinces, setProvinces] = useState(initialProvinces)
+  const [categories, setCategories] = useState(initialCategories)
   const [region1, setRegion1] = useState('')
   const [region2, setRegion2] = useState('')
   const [job1, setJob1] = useState('')
@@ -24,12 +24,45 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
   const [job2Options, setJob2Options] = useState([])
   const [hasSearched, setHasSearched] = useState(false)
 
-  // Debug: Check if data is loaded
+  // 클라이언트에서 직접 데이터 로드
   useEffect(() => {
-    console.log('HomePage - initialProvinces:', initialProvinces)
-    console.log('HomePage - initialCategories:', initialCategories)
-    console.log('HomePage - provinces:', provinces)
-    console.log('HomePage - categories:', categories)
+    const loadInitialData = async () => {
+      try {
+        // provinces 데이터 로드
+        const { data: provincesData, error: provincesError } = await supabase
+          .from('provinces')
+          .select('province_id, province_name')
+          .order('province_name')
+
+        if (provincesError) {
+          console.error('Provinces error:', provincesError)
+        } else if (provincesData) {
+          console.log('Loaded provinces:', provincesData.length)
+          setProvinces(provincesData)
+        }
+
+        // categories 데이터 로드
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('category_id, name, icon')
+          .is('parent_category', null)
+          .order('category_id')
+
+        if (categoriesError) {
+          console.error('Categories error:', categoriesError)
+        } else if (categoriesData) {
+          console.log('Loaded categories:', categoriesData.length)
+          setCategories(categoriesData)
+        }
+      } catch (err) {
+        console.error('Client load error:', err)
+      }
+    }
+
+    // initialProvinces와 initialCategories가 비어있으면 클라이언트에서 로드
+    if (!initialProvinces?.length || !initialCategories?.length) {
+      loadInitialData()
+    }
   }, [])
 
   // Load all jobs on mount
