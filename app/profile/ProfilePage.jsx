@@ -13,7 +13,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
   const [categories] = useState(initialCategories)
   const [subcategories, setSubcategories] = useState([])
   const [resumeFile, setResumeFile] = useState(null)
-  const [skillInput, setSkillInput] = useState('')
   const supabase = createClient()
 
   // 기본 프로필 정보
@@ -27,11 +26,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
     regency_id: '',
     category_id: '',
     subcategory_id: '',
-    current_title: '',
-    experience_level: 'entry',
-    expected_salary_min: '',
-    expected_salary_max: '',
-    skills: [],
     education_level: 'sma',
     resume_url: '',
     portfolio_url: '',
@@ -139,23 +133,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
       .getPublicUrl(filePath)
 
     return data.publicUrl
-  }
-
-  const addSkill = () => {
-    if (skillInput.trim() && !profile.skills.includes(skillInput.trim())) {
-      setProfile({
-        ...profile,
-        skills: [...profile.skills, skillInput.trim()]
-      })
-      setSkillInput('')
-    }
-  }
-
-  const removeSkill = (skill) => {
-    setProfile({
-      ...profile,
-      skills: profile.skills.filter(s => s !== skill)
-    })
   }
 
   const handleSubmit = async (e) => {
@@ -380,103 +357,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                         </option>
                       ))}
                     </select>
-                  </div>
-                </div>
-
-                {/* 현재 직함 및 경력 수준 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="current_title" className="block text-sm font-semibold text-slate-700 mb-2">
-                      현재 직함
-                    </label>
-                    <input
-                      type="text"
-                      id="current_title"
-                      value={profile.current_title}
-                      onChange={(e) => setProfile({...profile, current_title: e.target.value})}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="예: Software Developer"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="experience_level" className="block text-sm font-semibold text-slate-700 mb-2">
-                      경력 수준
-                    </label>
-                    <select
-                      id="experience_level"
-                      value={profile.experience_level}
-                      onChange={(e) => setProfile({...profile, experience_level: e.target.value})}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                    >
-                      <option value="entry">신입</option>
-                      <option value="junior">주니어 (1-3년)</option>
-                      <option value="mid">중급 (3-5년)</option>
-                      <option value="senior">시니어 (5-10년)</option>
-                      <option value="lead">리드 (10년+)</option>
-                      <option value="executive">임원급</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* 희망 급여 */}
-                <div>
-                  <div className="block text-sm font-semibold text-slate-700 mb-2">희망 급여 (IDR)</div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="number"
-                      value={profile.expected_salary_min}
-                      onChange={(e) => setProfile({...profile, expected_salary_min: e.target.value})}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="최소 급여"
-                    />
-                    <input
-                      type="number"
-                      value={profile.expected_salary_max}
-                      onChange={(e) => setProfile({...profile, expected_salary_max: e.target.value})}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="최대 급여"
-                    />
-                  </div>
-                </div>
-
-                {/* 보유 기술 */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    보유 기술
-                  </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="예: JavaScript, Python"
-                    />
-                    <button
-                      type="button"
-                      onClick={addSkill}
-                      className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600"
-                    >
-                      추가
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                      >
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => removeSkill(skill)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
                   </div>
                 </div>
 
