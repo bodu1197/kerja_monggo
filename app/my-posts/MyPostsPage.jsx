@@ -20,8 +20,13 @@ export default function MyPostsPage() {
     try {
       const supabase = createClient()
 
+      console.log('=== 내 글 관리 로드 시작 ===')
+
       // 사용자 정보 가져오기
-      const { data: { user: authUser } } = await supabase.auth.getUser()
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+
+      console.log('1. Auth User:', authUser)
+      console.log('1. Auth Error:', authError)
 
       if (!authUser) {
         alert('로그인이 필요합니다.')
@@ -32,18 +37,26 @@ export default function MyPostsPage() {
       setUser(authUser)
 
       // users 테이블에서 user_type 확인
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('id', authUser.id)
         .single()
 
+      console.log('2. User Data:', userData)
+      console.log('2. User Error:', userError)
+
       setUserInfo(userData)
 
       // user_type에 따라 다른 테이블에서 데이터 가져오기
+      console.log('3. User Type:', userData?.user_type)
+
       if (userData?.user_type === 'employer') {
+        console.log('3-1. Employer 모드 - 채용 공고 조회 시작')
+        console.log('3-2. Auth User ID:', authUser.id)
+
         // companies 테이블과 JOIN해서 채용 공고 가져오기
-        const { data: jobsData, error } = await supabase
+        const { data: jobsData, error: jobsError } = await supabase
           .from('jobs')
           .select(`
             *,
@@ -58,9 +71,11 @@ export default function MyPostsPage() {
           .eq('companies.user_id', authUser.id)
           .order('created_at', { ascending: false })
 
-        console.log('Jobs query result:', jobsData, error)
+        console.log('4. Jobs Data:', jobsData)
+        console.log('4. Jobs Error:', jobsError)
+        console.log('4. Jobs Count:', jobsData?.length || 0)
 
-        if (jobsData) {
+        if (jobsData && jobsData.length > 0) {
           // companies 객체를 company로 변환
           const transformedJobs = jobsData.map(job => ({
             ...job,
@@ -69,13 +84,17 @@ export default function MyPostsPage() {
             regency: job.regencies,
             category: job.categories
           }))
+          console.log('5. Transformed Jobs:', transformedJobs)
           setPosts(transformedJobs)
         } else {
+          console.log('5. No jobs found - setting empty array')
           setPosts([])
         }
       } else if (userData?.user_type === 'job_seeker') {
+        console.log('3-1. Job Seeker 모드 - 구직 프로필 조회 시작')
+
         // 구직 프로필 가져오기
-        const { data: profilesData } = await supabase
+        const { data: profilesData, error: profileError } = await supabase
           .from('candidate_profiles')
           .select(`
             *,
@@ -86,11 +105,20 @@ export default function MyPostsPage() {
           .eq('user_id', authUser.id)
           .order('created_at', { ascending: false })
 
+        console.log('4. Profiles Data:', profilesData)
+        console.log('4. Profiles Error:', profileError)
+        console.log('4. Profiles Count:', profilesData?.length || 0)
+
         setPosts(profilesData || [])
+      } else {
+        console.log('3. Unknown user type or no user type')
       }
 
+      console.log('=== 내 글 관리 로드 완료 ===')
+
     } catch (error) {
-      console.error('Error loading posts:', error)
+      console.error('❌ Error loading posts:', error)
+      alert('데이터를 불러오는 중 오류가 발생했습니다. 콘솔을 확인하세요.')
     } finally {
       setLoading(false)
     }
