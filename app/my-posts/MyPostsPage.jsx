@@ -42,29 +42,34 @@ export default function MyPostsPage() {
 
       // user_type에 따라 다른 테이블에서 데이터 가져오기
       if (userData?.user_type === 'employer') {
-        // 먼저 현재 사용자의 company를 찾기
-        const { data: userCompanies } = await supabase
-          .from('companies')
-          .select('id')
-          .eq('user_id', authUser.id)
+        // companies 테이블과 JOIN해서 채용 공고 가져오기
+        const { data: jobsData, error } = await supabase
+          .from('jobs')
+          .select(`
+            *,
+            companies!inner(
+              company_name,
+              user_id
+            ),
+            provinces(province_name),
+            regencies(regency_name),
+            categories(name)
+          `)
+          .eq('companies.user_id', authUser.id)
+          .order('created_at', { ascending: false })
 
-        if (userCompanies && userCompanies.length > 0) {
-          const companyIds = userCompanies.map(c => c.id)
+        console.log('Jobs query result:', jobsData, error)
 
-          // 해당 company의 채용 공고 가져오기
-          const { data: jobsData } = await supabase
-            .from('jobs')
-            .select(`
-              *,
-              company:companies(company_name),
-              province:provinces(province_name),
-              regency:regencies(regency_name),
-              category:categories(name)
-            `)
-            .in('company_id', companyIds)
-            .order('created_at', { ascending: false })
-
-          setPosts(jobsData || [])
+        if (jobsData) {
+          // companies 객체를 company로 변환
+          const transformedJobs = jobsData.map(job => ({
+            ...job,
+            company: { company_name: job.companies?.company_name },
+            province: job.provinces,
+            regency: job.regencies,
+            category: job.categories
+          }))
+          setPosts(transformedJobs)
         } else {
           setPosts([])
         }
