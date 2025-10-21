@@ -72,7 +72,7 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
     const applyFilters = async () => {
       setLoading(true)
       let query = supabase
-        .from('job_posts')
+        .from('jobs')
         .select(`
           *,
           province:provinces(province_name),

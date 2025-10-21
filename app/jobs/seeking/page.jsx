@@ -24,7 +24,7 @@ export default async function Page() {
 
   // job_seeker_posts 데이터 가져오기
   const { data: seekers } = await supabase
-    .from('job_seeker_posts')
+    .from('candidate_profiles')
     .select(`
       *,
       province:provinces(province_name),

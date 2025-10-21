@@ -7,7 +7,7 @@ export default async function Page({ params }) {
 
   // 서버 사이드에서 job seeker 데이터 가져오기
   const { data: worker, error } = await supabase
-    .from('job_seeker_posts')
+    .from('candidate_profiles')
     .select(`
       *,
       province:provinces(province_name),

@@ -106,7 +106,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
     try {
       // Load job posts (구인)
       const { data: jobPosts } = await supabase
-        .from('job_posts')
+        .from('jobs')
         .select(`
           id,
           title,
@@ -122,7 +122,7 @@ export default function HomePage({ initialProvinces = [], initialCategories = []
 
       // Load job seeker posts (구직)
       const { data: seekerPosts } = await supabase
-        .from('job_seeker_posts')
+        .from('candidate_profiles')
         .select(`
           id,
           title,

@@ -28,7 +28,7 @@ export default async function Page() {
 
   // job_posts 데이터 가져오기
   const { data: jobs, error: jobsError } = await supabase
-    .from('job_posts')
+    .from('jobs')
     .select(`
       *,
       province:provinces(province_name),
