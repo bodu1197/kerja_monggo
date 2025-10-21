@@ -42,6 +42,12 @@ export default async function Page() {
     .limit(50)
 
   console.log('SERVER - Jobs:', jobs?.length, jobsError)
+  if (jobsError) {
+    console.error('❌ Jobs 조회 에러:', jobsError)
+  }
+  if (jobs && jobs.length > 0) {
+    console.log('첫 번째 Job 샘플:', jobs[0])
+  }
 
   // 데이터 변환
   const transformedJobs = jobs?.map(job => ({
