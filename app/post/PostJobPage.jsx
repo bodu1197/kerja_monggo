@@ -26,20 +26,13 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     regency_id: '',
     category_id: '',
     subcategory_id: '',
-    employment_type: 'full_time',
     experience_level: 'entry',
     salary_min: '',
     salary_max: '',
     is_salary_negotiable: false,
-    is_remote: false,
-    skills: [],
-    benefits: [],
     positions_available: 1,
     deadline: '',
   })
-
-  const [skillInput, setSkillInput] = useState('')
-  const [benefitInput, setBenefitInput] = useState('')
 
   // Initial data already loaded from server via props
   // No need to load again
@@ -108,40 +101,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     }
   }
 
-  const addSkill = () => {
-    if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
-      setFormData({
-        ...formData,
-        skills: [...formData.skills, skillInput.trim()]
-      })
-      setSkillInput('')
-    }
-  }
-
-  const removeSkill = (skill) => {
-    setFormData({
-      ...formData,
-      skills: formData.skills.filter(s => s !== skill)
-    })
-  }
-
-  const addBenefit = () => {
-    if (benefitInput.trim() && !formData.benefits.includes(benefitInput.trim())) {
-      setFormData({
-        ...formData,
-        benefits: [...formData.benefits, benefitInput.trim()]
-      })
-      setBenefitInput('')
-    }
-  }
-
-  const removeBenefit = (benefit) => {
-    setFormData({
-      ...formData,
-      benefits: formData.benefits.filter(b => b !== benefit)
-    })
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -185,8 +144,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
             phone: formData.phone,
             email: formData.email,
             regency_id: formData.regency_id,
-            province_id: formData.province_id,
-            benefits: formData.benefits // 회사 복리후생
+            province_id: formData.province_id
           }])
           .select()
           .single()
@@ -208,8 +166,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
           phone: formData.phone,
           email: formData.email,
           regency_id: formData.regency_id,
-          province_id: formData.province_id,
-          benefits: formData.benefits
+          province_id: formData.province_id
         }
 
         const { error: updateError } = await supabase
@@ -230,14 +187,10 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         province_id: formData.province_id,
         regency_id: formData.regency_id,
         category_id: formData.subcategory_id || formData.category_id,
-        employment_type: formData.employment_type,
         experience_level: formData.experience_level,
         salary_min: formData.salary_min ? parseInt(formData.salary_min) : null,
         salary_max: formData.salary_max ? parseInt(formData.salary_max) : null,
         is_salary_negotiable: formData.is_salary_negotiable,
-        is_remote: formData.is_remote,
-        skills: formData.skills,
-        benefits: formData.benefits,
         positions_available: parseInt(formData.positions_available) || 1,
         deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
         status: 'active'
@@ -412,19 +365,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     </select>
                   </div>
                 </div>
-
-                {/* 원격 근무 */}
-                <div>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_remote}
-                      onChange={(e) => setFormData({...formData, is_remote: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm font-semibold text-slate-700">원격 근무 가능</span>
-                  </label>
-                </div>
             </div>
 
             {/* 상세 조건 */}
@@ -463,25 +403,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                       ))}
                     </select>
                   </div>
-                </div>
-
-                {/* 고용 형태 */}
-                <div>
-                  <label htmlFor="employment_type" className="block text-sm font-semibold text-slate-700 mb-2">
-                    고용 형태
-                  </label>
-                  <select
-                    id="employment_type"
-                    value={formData.employment_type}
-                    onChange={(e) => setFormData({...formData, employment_type: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                  >
-                    <option value="full_time">정규직</option>
-                    <option value="part_time">파트타임</option>
-                    <option value="contract">계약직</option>
-                    <option value="internship">인턴십</option>
-                    <option value="freelance">프리랜서</option>
-                  </select>
                 </div>
 
                 {/* 경력 수준 */}
@@ -532,88 +453,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     />
                     <span className="text-sm text-gray-600">급여 협의 가능</span>
                   </label>
-                </div>
-
-                {/* 필요 기술 */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    필요 기술
-                  </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="예: React, Node.js"
-                    />
-                    <button
-                      type="button"
-                      onClick={addSkill}
-                      className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600"
-                    >
-                      추가
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                      >
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => removeSkill(skill)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 복리후생 */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    복리후생
-                  </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={benefitInput}
-                      onChange={(e) => setBenefitInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addBenefit())}
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="예: BPJS, 보너스, 식대"
-                    />
-                    <button
-                      type="button"
-                      onClick={addBenefit}
-                      className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600"
-                    >
-                      추가
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.benefits.map((benefit, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                      >
-                        {benefit}
-                        <button
-                          type="button"
-                          onClick={() => removeBenefit(benefit)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* 채용 인원 */}
