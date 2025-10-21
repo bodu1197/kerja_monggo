@@ -42,20 +42,32 @@ export default function MyPostsPage() {
 
       // user_type에 따라 다른 테이블에서 데이터 가져오기
       if (userData?.user_type === 'employer') {
-        // 채용 공고 가져오기
-        const { data: jobsData } = await supabase
-          .from('jobs')
-          .select(`
-            *,
-            company:companies(company_name),
-            province:provinces(province_name),
-            regency:regencies(regency_name),
-            category:categories(name)
-          `)
-          .eq('companies.user_id', authUser.id)
-          .order('created_at', { ascending: false })
+        // 먼저 현재 사용자의 company를 찾기
+        const { data: userCompanies } = await supabase
+          .from('companies')
+          .select('id')
+          .eq('user_id', authUser.id)
 
-        setPosts(jobsData || [])
+        if (userCompanies && userCompanies.length > 0) {
+          const companyIds = userCompanies.map(c => c.id)
+
+          // 해당 company의 채용 공고 가져오기
+          const { data: jobsData } = await supabase
+            .from('jobs')
+            .select(`
+              *,
+              company:companies(company_name),
+              province:provinces(province_name),
+              regency:regencies(regency_name),
+              category:categories(name)
+            `)
+            .in('company_id', companyIds)
+            .order('created_at', { ascending: false })
+
+          setPosts(jobsData || [])
+        } else {
+          setPosts([])
+        }
       } else if (userData?.user_type === 'job_seeker') {
         // 구직 프로필 가져오기
         const { data: profilesData } = await supabase
