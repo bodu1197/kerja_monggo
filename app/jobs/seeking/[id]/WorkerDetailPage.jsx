@@ -184,7 +184,7 @@ export default function WorkerDetailPage({ worker }) {
         {/* About Section */}
         <div className="bg-dark-100 border border-gray-800 rounded-lg p-6 mb-6">
           <h2 className="text-xl font-bold text-white mb-4">Tentang Saya</h2>
-          <div className="text-gray-300 whitespace-pre-wrap">{worker.description || 'Tidak ada deskripsi'}</div>
+          <div className="text-gray-300 whitespace-pre-wrap break-words overflow-wrap-anywhere max-w-full">{worker.description || 'Tidak ada deskripsi'}</div>
         </div>
 
         {/* Experience Section */}
@@ -194,7 +194,7 @@ export default function WorkerDetailPage({ worker }) {
               <FaBriefcase className="mr-2" />
               Pengalaman Kerja
             </h2>
-            <div className="text-gray-300 whitespace-pre-wrap">{worker.experience}</div>
+            <div className="text-gray-300 whitespace-pre-wrap break-words overflow-wrap-anywhere max-w-full">{worker.experience}</div>
           </div>
         )}
 
@@ -205,7 +205,7 @@ export default function WorkerDetailPage({ worker }) {
               <FaGraduationCap className="mr-2" />
               Pendidikan
             </h2>
-            <div className="text-gray-300 whitespace-pre-wrap">{worker.education}</div>
+            <div className="text-gray-300 whitespace-pre-wrap break-words overflow-wrap-anywhere max-w-full">{worker.education}</div>
           </div>
         )}
 
@@ -281,63 +281,91 @@ export default function WorkerDetailPage({ worker }) {
 
       {/* Contact Dialog */}
       {showContactDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-dark-100 rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-white mb-4">Kontak Pencari Kerja</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50" onClick={() => setShowContactDialog(false)}>
+          <div className="bg-dark-100 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-gray-700" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-900 bg-opacity-30 rounded-full flex items-center justify-center mx-auto mb-3">
+                <IoCall className="text-3xl text-green-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Hubungi Kandidat</h3>
+              <p className="text-gray-400 text-sm">Pilih metode kontak untuk menghubungi kandidat ini</p>
+            </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {worker.whatsapp && (
                 <a
-                  href={`https://wa.me/${worker.whatsapp}`}
+                  href={`https://wa.me/${worker.whatsapp}?text=${encodeURIComponent(`Halo, saya tertarik dengan profil ${worker.title || 'Anda'}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center p-4 bg-green-900 bg-opacity-20 border border-green-800 rounded-lg hover:bg-opacity-30 transition"
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  <FaWhatsapp className="text-2xl text-green-400 mr-3" />
-                  <div>
-                    <p className="text-white font-semibold">WhatsApp</p>
-                    <p className="text-gray-400 text-sm">{worker.whatsapp}</p>
+                  <div className="flex items-center">
+                    <FaWhatsapp className="text-3xl mr-4" />
+                    <div className="text-left">
+                      <p className="font-bold text-lg">Chat via WhatsApp</p>
+                      <p className="text-green-100 text-sm">{worker.whatsapp}</p>
+                    </div>
                   </div>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </a>
               )}
 
               {worker.phone && (
                 <a
                   href={`tel:${worker.phone}`}
-                  className="flex items-center p-4 bg-blue-900 bg-opacity-20 border border-blue-800 rounded-lg hover:bg-opacity-30 transition"
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  <IoCall className="text-2xl text-blue-400 mr-3" />
-                  <div>
-                    <p className="text-white font-semibold">Telepon</p>
-                    <p className="text-gray-400 text-sm">{worker.phone}</p>
+                  <div className="flex items-center">
+                    <IoCall className="text-3xl mr-4" />
+                    <div className="text-left">
+                      <p className="font-bold text-lg">Telepon Langsung</p>
+                      <p className="text-blue-100 text-sm">{worker.phone}</p>
+                    </div>
                   </div>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </a>
               )}
 
               {worker.email && (
                 <a
-                  href={`mailto:${worker.email}`}
-                  className="flex items-center p-4 bg-purple-900 bg-opacity-20 border border-purple-800 rounded-lg hover:bg-opacity-30 transition"
+                  href={`mailto:${worker.email}?subject=${encodeURIComponent(`Tertarik dengan profil ${worker.title || 'Anda'}`)}&body=${encodeURIComponent('Kepada Yth. ' + (worker.name || 'Kandidat') + ',\n\nSaya tertarik untuk mendiskusikan peluang kerja dengan Anda.\n\n')}`}
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  <FaEnvelope className="text-2xl text-purple-400 mr-3" />
-                  <div>
-                    <p className="text-white font-semibold">Email</p>
-                    <p className="text-gray-400 text-sm">{worker.email}</p>
+                  <div className="flex items-center">
+                    <FaEnvelope className="text-3xl mr-4" />
+                    <div className="text-left">
+                      <p className="font-bold text-lg">Kirim Email</p>
+                      <p className="text-purple-100 text-sm">{worker.email}</p>
+                    </div>
                   </div>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </a>
               )}
 
               {worker.contact && !worker.whatsapp && !worker.phone && !worker.email && (
-                <div className="p-4 bg-dark-200 border border-gray-800 rounded-lg">
-                  <p className="text-white font-semibold mb-1">Kontak</p>
-                  <p className="text-gray-400">{worker.contact}</p>
+                <div className="p-4 bg-dark-200 border-2 border-gray-700 rounded-xl">
+                  <p className="text-white font-bold mb-2 text-center">Informasi Kontak</p>
+                  <p className="text-gray-300 text-center">{worker.contact}</p>
+                </div>
+              )}
+
+              {!worker.whatsapp && !worker.phone && !worker.email && !worker.contact && (
+                <div className="p-6 bg-yellow-900 bg-opacity-20 border-2 border-yellow-700 rounded-xl text-center">
+                  <p className="text-yellow-400 font-semibold">Informasi kontak tidak tersedia</p>
+                  <p className="text-yellow-500 text-sm mt-1">Silakan coba lagi nanti</p>
                 </div>
               )}
             </div>
 
             <button
               onClick={() => setShowContactDialog(false)}
-              className="w-full mt-6 bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition"
+              className="w-full mt-6 bg-gray-800 text-gray-200 py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all"
             >
               Tutup
             </button>

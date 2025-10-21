@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Footer from '../../../components/Footer'
-import { IoLocationSharp, IoCall, IoBriefcase, IoTime, IoSchool, IoCash, IoArrowBack } from 'react-icons/io5'
+import { IoLocationSharp, IoCall, IoBriefcase, IoTime, IoSchool, IoCash, IoArrowBack, IoCalendar } from 'react-icons/io5'
 import { FaWhatsapp, FaEnvelope, FaShareAlt, FaFlag } from 'react-icons/fa'
 
 export default function JobDetailPage({ job }) {
@@ -125,22 +125,57 @@ export default function JobDetailPage({ job }) {
         </div>
 
         {/* Quick Info Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {job.salary_min || job.salary_max ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          {/* 마감기일 - 최우선 표시 */}
+          {job.deadline && (
+            <div className="bg-white border-2 border-red-200 rounded-lg p-4 shadow-sm">
+              <IoCalendar className="text-2xl text-red-600 mb-2" />
+              <h3 className="text-sm font-semibold text-gray-700">마감기일</h3>
+              <p className="text-sm font-bold text-red-700">
+                {new Date(job.deadline).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {Math.ceil((new Date(job.deadline) - new Date()) / (1000 * 60 * 60 * 24))}일 남음
+              </p>
+            </div>
+          )}
+
+          {/* 근무 형태 */}
+          {job.employment_type && (
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <IoBriefcase className="text-2xl text-blue-600 mb-2" />
+              <h3 className="text-sm font-semibold text-gray-700">근무 형태</h3>
+              <p className="text-sm font-bold text-gray-900">
+                {job.employment_type === 'full_time' ? 'Full Time' :
+                 job.employment_type === 'part_time' ? 'Part Time' :
+                 job.employment_type === 'contract' ? 'Kontrak' :
+                 job.employment_type === 'freelance' ? 'Freelance' :
+                 job.employment_type === 'internship' ? 'Magang' : job.employment_type}
+              </p>
+            </div>
+          )}
+
+          {/* 급여 */}
+          {(job.salary_min || job.salary_max) && (
             <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
               <IoCash className="text-2xl text-green-600 mb-2" />
-              <h3 className="text-sm text-gray-600">Gaji</h3>
-              <p className="text-sm font-semibold text-gray-900">
+              <h3 className="text-sm font-semibold text-gray-700">Gaji</h3>
+              <p className="text-sm font-bold text-gray-900">
                 {formatSalary(job.salary_min, job.salary_max)}
               </p>
             </div>
-          ) : null}
+          )}
 
+          {/* 경험 */}
           {job.experience_level && (
             <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-              <IoBriefcase className="text-2xl text-blue-600 mb-2" />
-              <h3 className="text-sm text-gray-600">Pengalaman</h3>
-              <p className="text-sm font-semibold text-gray-900">
+              <IoBriefcase className="text-2xl text-indigo-600 mb-2" />
+              <h3 className="text-sm font-semibold text-gray-700">경력</h3>
+              <p className="text-sm font-bold text-gray-900">
                 {job.experience_level === 'entry' ? 'Entry Level' :
                  job.experience_level === 'junior' ? 'Junior' :
                  job.experience_level === 'mid' ? 'Mid Level' :
@@ -151,11 +186,12 @@ export default function JobDetailPage({ job }) {
             </div>
           )}
 
+          {/* 학력 */}
           {job.education_level && (
             <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
               <IoSchool className="text-2xl text-purple-600 mb-2" />
-              <h3 className="text-sm text-gray-600">Pendidikan</h3>
-              <p className="text-sm font-semibold text-gray-900">
+              <h3 className="text-sm font-semibold text-gray-700">최소 학력</h3>
+              <p className="text-sm font-bold text-gray-900">
                 {job.education_level === 'sma' ? 'SMA/SMK' :
                  job.education_level === 'd3' ? 'D3' :
                  job.education_level === 's1' ? 'S1' :
@@ -165,21 +201,49 @@ export default function JobDetailPage({ job }) {
             </div>
           )}
 
+          {/* 상태 */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
             <IoTime className="text-2xl text-orange-600 mb-2" />
-            <h3 className="text-sm text-gray-600">Status</h3>
-            <p className="text-sm font-semibold text-gray-900">
-              {job.status === 'active' ? 'Aktif' :
-               job.status === 'paused' ? 'Dipause' :
-               job.status === 'closed' ? 'Ditutup' :
-               job.status === 'filled' ? 'Sudah Terisi' : job.status}
+            <h3 className="text-sm font-semibold text-gray-700">공고 상태</h3>
+            <p className="text-sm font-bold text-gray-900">
+              {job.status === 'active' ? '모집 중' :
+               job.status === 'paused' ? '일시중지' :
+               job.status === 'closed' ? '마감' :
+               job.status === 'filled' ? '채용완료' : job.status}
             </p>
           </div>
         </div>
 
+        {/* Company Info */}
+        {(job.company_name || job.province_name) && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6 shadow-sm">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <IoBriefcase className="mr-2 text-blue-600" />
+              회사 정보
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {job.company_name && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">회사명</h3>
+                  <p className="text-base font-bold text-gray-900">{job.company_name}</p>
+                </div>
+              )}
+              {job.province_name && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <IoLocationSharp className="mr-1" />
+                    위치
+                  </h3>
+                  <p className="text-base text-gray-900">{job.province_name}, {job.regency_name}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Job Description */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Deskripsi Pekerjaan</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">업무 내용</h2>
           <div className="text-gray-700 whitespace-pre-wrap break-words overflow-wrap-anywhere max-w-full">{job.description}</div>
         </div>
 
