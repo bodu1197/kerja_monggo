@@ -30,6 +30,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
     resume_url: '',
     portfolio_url: '',
     linkedin_url: '',
+    title: '',
     bio: '',
     is_profile_public: true,
     is_open_to_work: true,
@@ -296,7 +297,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
 
                 {/* 지역 */}
                 <div>
-                  <div className="block text-sm font-semibold text-slate-700 mb-2">거주 지역</div>
+                  <div className="block text-sm font-semibold text-slate-700 mb-2">취업 희망지역</div>
                   <div className="space-y-3">
                     <select
                       value={profile.province_id}
@@ -358,6 +359,22 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                       ))}
                     </select>
                   </div>
+                </div>
+
+                {/* 글 제목 */}
+                <div>
+                  <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
+                    글 제목 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    value={profile.title}
+                    onChange={(e) => setProfile({...profile, title: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
+                    placeholder="예: 열정 넘치는 개발자 구직합니다"
+                    required
+                  />
                 </div>
 
                 {/* 자기소개 */}
