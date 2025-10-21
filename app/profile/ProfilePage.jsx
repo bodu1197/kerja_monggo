@@ -13,6 +13,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
   const [categories] = useState(initialCategories)
   const [subcategories, setSubcategories] = useState([])
   const [resumeFile, setResumeFile] = useState(null)
+  const [skillInput, setSkillInput] = useState('')
   const supabase = createClient()
 
   // 기본 프로필 정보
@@ -101,7 +102,10 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
       .single()
 
     if (existingProfile) {
-      }
+      setProfile({
+        ...profile,
+        ...existingProfile
+      })
     }
   }
 
