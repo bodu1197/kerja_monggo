@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useAuth } from '../contexts/AuthContext'
 
 export default function PostJobPage({ initialProvinces = [], initialCategories = [] }) {
   const router = useRouter()
-  const { user, userType, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [provinces] = useState(initialProvinces)
   const [regencies, setRegencies] = useState([])

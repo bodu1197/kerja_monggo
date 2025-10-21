@@ -1,6 +1,5 @@
 import './globals.css'
 import { SupabaseProvider } from './components/SupabaseProvider'
-import { AuthProvider } from './contexts/AuthContext'
 
 export const metadata = {
   title: 'Kerja Monggo - Lowongan Kerja Indonesia',
@@ -17,11 +16,9 @@ export default function RootLayout({ children }) {
     <html lang="id">
       <body className="m-0 p-0 bg-white overflow-x-hidden">
         <SupabaseProvider>
-          <AuthProvider>
-            <div className="max-w-[600px] mx-auto bg-white min-h-screen flex flex-col pb-[70px]">
-              {children}
-            </div>
-          </AuthProvider>
+          <div className="max-w-[600px] mx-auto bg-white min-h-screen flex flex-col pb-[70px]">
+            {children}
+          </div>
         </SupabaseProvider>
       </body>
     </html>
