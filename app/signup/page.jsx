@@ -11,12 +11,18 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [userType, setUserType] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleEmailSignup = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!userType) {
+      setError('회원 유형을 선택해주세요.')
+      return
+    }
 
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.')
@@ -35,9 +41,28 @@ export default function SignupPage() {
     if (error) {
       setError(error.message)
       setLoading(false)
-    } else {
-      // 회원가입 성공 시 회원 유형 선택 페이지로 이동 (히스토리에 남지 않도록 replace 사용)
-      router.replace('/select-user-type')
+    } else if (data?.user) {
+      // 회원가입 성공 시 즉시 user_type 저장
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .upsert({
+          id: data.user.id,
+          email: data.user.email,
+          user_type: userType,
+          updated_at: new Date().toISOString(),
+        })
+
+      if (updateError) {
+        console.error('User type update error:', updateError)
+        setError('회원 유형 저장에 실패했습니다.')
+        setLoading(false)
+      } else {
+        // 성공 시 메인 페이지로 이동
+        router.replace('/')
+      }
     }
   }
 
@@ -110,6 +135,67 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2c3e50] focus:border-[#2c3e50]"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                회원 유형 선택 <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setUserType('employer')}
+                  className={`relative p-4 border-2 rounded-lg transition-all ${
+                    userType === 'employer'
+                      ? 'border-[#2c3e50] bg-[#2c3e50]/5'
+                      : 'border-gray-300 hover:border-[#2c3e50]/50'
+                  }`}
+                >
+                  {userType === 'employer' && (
+                    <div className="absolute top-2 right-2">
+                      <svg className="w-5 h-5 text-[#2c3e50]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="font-semibold text-gray-900">구인자</span>
+                    <span className="text-xs text-gray-600 mt-1">직원 채용</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setUserType('job_seeker')}
+                  className={`relative p-4 border-2 rounded-lg transition-all ${
+                    userType === 'job_seeker'
+                      ? 'border-[#2c3e50] bg-[#2c3e50]/5'
+                      : 'border-gray-300 hover:border-[#2c3e50]/50'
+                  }`}
+                >
+                  {userType === 'job_seeker' && (
+                    <div className="absolute top-2 right-2">
+                      <svg className="w-5 h-5 text-[#2c3e50]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                      <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <span className="font-semibold text-gray-900">구직자</span>
+                    <span className="text-xs text-gray-600 mt-1">일자리 찾기</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
             <button
