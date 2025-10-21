@@ -12,7 +12,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
   const [regencies, setRegencies] = useState([])
   const [categories] = useState(initialCategories)
   const [subcategories, setSubcategories] = useState([])
-  const [currentStep, setCurrentStep] = useState(1)
   const [resumeFile, setResumeFile] = useState(null)
   const supabase = createClient()
 
@@ -320,26 +319,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
     setCertifications(updated)
   }
 
-  const validateStep1 = () => {
-    if (!profile.full_name || !profile.email || !profile.phone) {
-      alert('이름, 이메일, 전화번호는 필수입니다.')
-      return false
-    }
-    return true
-  }
-
-  const validateStep2 = () => {
-    const hasValidEducation = educations.some(edu =>
-      edu.institution && edu.degree && edu.start_date
-    )
-
-    if (!hasValidEducation) {
-      alert('최소 하나의 학력 정보를 입력해주세요.')
-      return false
-    }
-    return true
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -488,41 +467,10 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-[800px] mx-auto px-5">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-slate-700 mb-6">구직자 프로필 등록</h1>
-
-          {/* 진행 상태 */}
-          <div className="flex items-center justify-between mb-8">
-            <div className={`flex-1 text-center ${currentStep >= 1 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 1 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>1</div>
-              <div className="mt-2 text-sm">기본 정보</div>
-            </div>
-            <div className={`flex-1 text-center ${currentStep >= 2 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 2 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>2</div>
-              <div className="mt-2 text-sm">학력</div>
-            </div>
-            <div className={`flex-1 text-center ${currentStep >= 3 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 3 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>3</div>
-              <div className="mt-2 text-sm">경력</div>
-            </div>
-            <div className={`flex-1 text-center ${currentStep >= 4 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 4 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>4</div>
-              <div className="mt-2 text-sm">추가 정보</div>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Step 1: 기본 정보 */}
-            {currentStep === 1 && (
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-slate-700 mb-4">기본 정보</h2>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* 기본 정보 */}
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-slate-700 mb-4">기본 정보</h2>
 
                 {/* 이름 */}
                 <div>
@@ -799,33 +747,18 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                   </label>
                 </div>
 
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (validateStep1()) {
-                        setCurrentStep(2)
-                      }
-                    }}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
-                  >
-                    다음 단계
-                  </button>
-                </div>
-              </div>
-            )}
+            </div>
 
-            {/* Step 2: 학력 */}
-            {currentStep === 2 && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-slate-700">학력 정보</h2>
-                  <button
-                    type="button"
-                    onClick={addEducation}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-                  >
-                    + 학력 추가
+            {/* 학력 */}
+            <div className="space-y-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-slate-700">학력 정보</h2>
+                <button
+                  type="button"
+                  onClick={addEducation}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                >
+                  + 학력 추가
                   </button>
                 </div>
 
@@ -939,40 +872,18 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                   </div>
                 ))}
 
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(1)}
-                    className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
-                  >
-                    이전 단계
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (validateStep2()) {
-                        setCurrentStep(3)
-                      }
-                    }}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
-                  >
-                    다음 단계
-                  </button>
-                </div>
-              </div>
-            )}
+            </div>
 
-            {/* Step 3: 경력 */}
-            {currentStep === 3 && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-slate-700">경력 정보</h2>
-                  <button
-                    type="button"
-                    onClick={addExperience}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-                  >
-                    + 경력 추가
+            {/* 경력 */}
+            <div className="space-y-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-slate-700">경력 정보</h2>
+                <button
+                  type="button"
+                  onClick={addExperience}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                >
+                  + 경력 추가
                   </button>
                 </div>
 
@@ -1138,34 +1049,15 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                     </div>
                   </div>
                 ))}
+            </div>
 
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(2)}
-                    className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
-                  >
-                    이전 단계
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(4)}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
-                  >
-                    다음 단계
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* 추가 정보 */}
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-slate-700 mb-4">추가 정보</h2>
 
-            {/* Step 4: 추가 정보 */}
-            {currentStep === 4 && (
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-slate-700 mb-4">추가 정보</h2>
-
-                {/* 자격증 */}
-                <div>
-                  <div className="flex justify-between items-center mb-4">
+              {/* 자격증 */}
+              <div>
+                <div className="flex justify-between items-center mb-4">
                     <h3 className="font-semibold">자격증</h3>
                     <button
                       type="button"
@@ -1302,14 +1194,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                   />
                 </div>
 
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(3)}
-                    className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
-                  >
-                    이전 단계
-                  </button>
+                <div className="flex justify-end">
                   <button
                     type="submit"
                     disabled={loading}
@@ -1318,8 +1203,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                     {loading ? '저장 중...' : '프로필 저장'}
                   </button>
                 </div>
-              </div>
-            )}
+            </div>
           </form>
         </div>
       </div>
