@@ -199,7 +199,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
       }
 
       alert('채용공고가 성공적으로 등록되었습니다!')
-      router.push('/')
+      router.push('/jobs/hiring')
 
     } catch (error) {
       console.error('Unexpected error:', error)

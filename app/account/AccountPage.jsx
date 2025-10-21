@@ -153,10 +153,17 @@ export default function AccountPage() {
 
           {/* 액션 버튼 */}
           <div className="space-y-3">
+            <button
+              onClick={() => router.push('/my-posts')}
+              className="w-full px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
+            >
+              내 글 관리
+            </button>
+
             {userInfo?.user_type === 'employer' && (
               <button
                 onClick={() => router.push('/post')}
-                className="w-full px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
+                className="w-full px-6 py-3 border-2 border-slate-700 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-all"
               >
                 채용 공고 등록
               </button>
@@ -165,7 +172,7 @@ export default function AccountPage() {
             {userInfo?.user_type === 'job_seeker' && (
               <button
                 onClick={() => router.push('/profile')}
-                className="w-full px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
+                className="w-full px-6 py-3 border-2 border-slate-700 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-all"
               >
                 구직 프로필 등록
               </button>
