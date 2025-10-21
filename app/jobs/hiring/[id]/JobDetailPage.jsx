@@ -70,32 +70,30 @@ export default function JobDetailPage({ job }) {
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
-              {job.company_name && (
-                <h2 className="text-xl text-gray-700 mb-3">{job.company_name}</h2>
-              )}
-              <div className="flex items-center text-gray-600 mb-2">
-                <IoLocationSharp className="mr-2" />
-                <span>{job.province_name}, {job.regency_name}</span>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                  {job.category_name}
-                </span>
-                {job.subcategory_name && (
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                    {job.subcategory_name}
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{job.title}</h1>
+
+              {/* 모집직종 */}
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">모집 직종</h3>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full font-medium">
+                    {job.category_name}
                   </span>
-                )}
-                {job.employment_type && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
-                    {job.employment_type === 'full_time' ? 'Full Time' :
-                     job.employment_type === 'part_time' ? 'Part Time' :
-                     job.employment_type === 'contract' ? 'Kontrak' :
-                     job.employment_type === 'freelance' ? 'Freelance' :
-                     job.employment_type === 'internship' ? 'Magang' : job.employment_type}
-                  </span>
-                )}
+                  {job.subcategory_name && (
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+                      {job.subcategory_name}
+                    </span>
+                  )}
+                  {job.employment_type && (
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+                      {job.employment_type === 'full_time' ? 'Full Time' :
+                       job.employment_type === 'part_time' ? 'Part Time' :
+                       job.employment_type === 'contract' ? 'Kontrak' :
+                       job.employment_type === 'freelance' ? 'Freelance' :
+                       job.employment_type === 'internship' ? 'Magang' : job.employment_type}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <div className="hidden md:flex flex-col gap-2">
