@@ -66,7 +66,8 @@ export default function MyPostsPage() {
             ),
             provinces(province_name),
             regencies(regency_name),
-            categories(name)
+            category:categories!jobs_category_id_fkey(name),
+            subcategory:categories!jobs_subcategory_id_fkey(name)
           `)
           .eq('companies.user_id', authUser.id)
           .order('created_at', { ascending: false })
@@ -82,7 +83,8 @@ export default function MyPostsPage() {
             company: { company_name: job.companies?.company_name },
             province: job.provinces,
             regency: job.regencies,
-            category: job.categories
+            category: job.category,
+            subcategory: job.subcategory
           }))
           console.log('5. Transformed Jobs:', transformedJobs)
           setPosts(transformedJobs)
