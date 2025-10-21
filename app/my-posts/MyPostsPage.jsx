@@ -66,8 +66,8 @@ export default function MyPostsPage() {
             ),
             provinces(province_name),
             regencies(regency_name),
-            category:categories!jobs_category_id_fkey(name),
-            subcategory:categories!jobs_subcategory_id_fkey(name)
+            category:categories!job_posts_category_id_fkey(name),
+            subcategory:categories!job_posts_subcategory_id_fkey(name)
           `)
           .eq('companies.user_id', authUser.id)
           .order('created_at', { ascending: false })
