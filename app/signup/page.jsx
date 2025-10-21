@@ -36,8 +36,8 @@ export default function SignupPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      // 회원가입 성공 시 회원 유형 선택 페이지로 이동
-      router.push('/select-user-type')
+      // 회원가입 성공 시 회원 유형 선택 페이지로 이동 (히스토리에 남지 않도록 replace 사용)
+      router.replace('/select-user-type')
     }
   }
 

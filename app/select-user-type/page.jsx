@@ -13,8 +13,9 @@ export default function SelectUserTypePage() {
 
   useEffect(() => {
     // 이미 user_type이 설정되어 있으면 메인 페이지로 리다이렉트
+    // router.replace를 사용하여 브라우저 히스토리에 남지 않도록 함
     if (userType) {
-      router.push('/')
+      router.replace('/')
     }
   }, [userType, router])
 
@@ -33,8 +34,8 @@ export default function SelectUserTypePage() {
       setError('회원 유형 설정에 실패했습니다. 다시 시도해주세요.')
       setLoading(false)
     } else {
-      // 성공 시 메인 페이지로 이동
-      router.push('/')
+      // 성공 시 메인 페이지로 이동 (히스토리에 남지 않도록 replace 사용)
+      router.replace('/')
     }
   }
 
