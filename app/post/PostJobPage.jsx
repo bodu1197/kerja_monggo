@@ -224,13 +224,9 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-[800px] mx-auto px-5">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-slate-700 mb-6">채용공고 등록</h1>
-
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* 회사 정보 */}
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-slate-700 mb-4">회사 정보</h2>
-
                 {/* 회사명 */}
                 <div>
                   <label htmlFor="company_name" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -294,8 +290,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
 
             {/* 채용 정보 */}
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-slate-700 mb-4">채용 정보</h2>
-
                 {/* 제목 */}
                 <div>
                   <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -369,8 +363,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
 
             {/* 상세 조건 */}
             <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-slate-700 mb-4">상세 조건</h2>
-
                 {/* 직업 카테고리 */}
                 <div>
                   <div className="block text-sm font-semibold text-slate-700 mb-2">직종</div>
