@@ -11,7 +11,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
   const [regencies, setRegencies] = useState([])
   const [categories] = useState(initialCategories)
   const [subcategories, setSubcategories] = useState([])
-  const [currentStep, setCurrentStep] = useState(1) // 단계별 폼
 
   const [formData, setFormData] = useState({
     // 회사 정보
@@ -23,8 +22,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     // 채용 공고 정보
     title: '',
     description: '',
-    requirements: '',
-    responsibilities: '',
     province_id: '',
     regency_id: '',
     category_id: '',
@@ -145,26 +142,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     })
   }
 
-  const validateStep1 = () => {
-    if (!formData.company_name || !formData.contact_person || !formData.phone || !formData.email) {
-      alert('회사 기본 정보를 모두 입력해주세요.')
-      return false
-    }
-    return true
-  }
-
-  const validateStep2 = () => {
-    if (!formData.title || !formData.description || !formData.requirements) {
-      alert('채용 공고 기본 정보를 모두 입력해주세요.')
-      return false
-    }
-    if (formData.description.length < 50) {
-      alert('상세 설명은 최소 50자 이상이어야 합니다.')
-      return false
-    }
-    return true
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -250,8 +227,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         company_id: companyId,
         title: formData.title,
         description: formData.description,
-        requirements: formData.requirements,
-        responsibilities: formData.responsibilities,
         province_id: formData.province_id,
         regency_id: formData.regency_id,
         category_id: formData.subcategory_id || formData.category_id,
@@ -298,33 +273,10 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h1 className="text-2xl font-bold text-slate-700 mb-6">채용공고 등록</h1>
 
-          {/* 진행 상태 표시 */}
-          <div className="flex items-center justify-between mb-8">
-            <div className={`flex-1 text-center ${currentStep >= 1 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 1 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>1</div>
-              <div className="mt-2 text-sm">회사 정보</div>
-            </div>
-            <div className={`flex-1 text-center ${currentStep >= 2 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 2 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>2</div>
-              <div className="mt-2 text-sm">채용 정보</div>
-            </div>
-            <div className={`flex-1 text-center ${currentStep >= 3 ? 'text-slate-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center ${
-                currentStep >= 3 ? 'bg-slate-700 text-white' : 'bg-gray-200'
-              }`}>3</div>
-              <div className="mt-2 text-sm">상세 조건</div>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Step 1: 회사 정보 */}
-            {currentStep === 1 && (
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-slate-700 mb-4">회사 정보</h2>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* 회사 정보 */}
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-slate-700 mb-4">회사 정보</h2>
 
                 {/* 회사명 */}
                 <div>
@@ -385,27 +337,11 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     required
                   />
                 </div>
+            </div>
 
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (validateStep1()) {
-                        setCurrentStep(2)
-                      }
-                    }}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
-                  >
-                    다음 단계
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: 채용 정보 */}
-            {currentStep === 2 && (
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-slate-700 mb-4">채용 정보</h2>
+            {/* 채용 정보 */}
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-slate-700 mb-4">채용 정보</h2>
 
                 {/* 제목 */}
                 <div>
@@ -441,34 +377,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                   </div>
                 </div>
 
-                {/* 자격 요건 */}
-                <div>
-                  <label htmlFor="requirements" className="block text-sm font-semibold text-slate-700 mb-2">
-                    자격 요건 <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    id="requirements"
-                    value={formData.requirements}
-                    onChange={(e) => setFormData({...formData, requirements: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none h-32"
-                    placeholder="필수 자격 요건을 입력하세요..."
-                    required
-                  />
-                </div>
-
-                {/* 담당 업무 */}
-                <div>
-                  <label htmlFor="responsibilities" className="block text-sm font-semibold text-slate-700 mb-2">
-                    담당 업무
-                  </label>
-                  <textarea
-                    id="responsibilities"
-                    value={formData.responsibilities}
-                    onChange={(e) => setFormData({...formData, responsibilities: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none h-32"
-                    placeholder="주요 담당 업무를 입력하세요..."
-                  />
-                </div>
 
                 {/* 지역 선택 */}
                 <div>
@@ -517,33 +425,10 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     <span className="text-sm font-semibold text-slate-700">원격 근무 가능</span>
                   </label>
                 </div>
+            </div>
 
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(1)}
-                    className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
-                  >
-                    이전 단계
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (validateStep2()) {
-                        setCurrentStep(3)
-                      }
-                    }}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all"
-                  >
-                    다음 단계
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: 상세 조건 */}
-            {currentStep === 3 && (
-              <div className="space-y-6">
+            {/* 상세 조건 */}
+            <div className="space-y-6">
                 <h2 className="text-lg font-semibold text-slate-700 mb-4">상세 조건</h2>
 
                 {/* 직업 카테고리 */}
@@ -765,14 +650,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                   </p>
                 </div>
 
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(2)}
-                    className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
-                  >
-                    이전 단계
-                  </button>
+                <div className="flex justify-end">
                   <button
                     type="submit"
                     disabled={loading}
@@ -781,8 +659,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     {loading ? '등록 중...' : '채용공고 등록'}
                   </button>
                 </div>
-              </div>
-            )}
+            </div>
           </form>
         </div>
       </div>
