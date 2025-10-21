@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function PostJobPage({ initialProvinces = [], initialCategories = [] }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editId = searchParams.get('edit')
   const [loading, setLoading] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
   const [provinces] = useState(initialProvinces)
   const [regencies, setRegencies] = useState([])
   const [categories] = useState(initialCategories)
@@ -62,39 +65,147 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     }
   }, [])
 
-  // 기존 회사 정보 자동 로드
+  // 수정 모드: 기존 채용 공고 데이터 로드
   useEffect(() => {
-    const loadExistingCompanyInfo = async () => {
-      const supabase = createClient()
+    if (editId) {
+      loadExistingJobData(editId)
+    } else {
+      loadExistingCompanyInfo()
+    }
+  }, [editId])
 
-      // 로그인 확인
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+  const loadExistingJobData = async (jobId) => {
+    const supabase = createClient()
+    setLoading(true)
 
-      // 기존 회사 정보 조회
-      const { data: companies } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('user_id', user.id)
-        .limit(1)
+    try {
+      console.log('=== 수정 모드 데이터 로드 시작 ===')
+      console.log('Job ID:', jobId)
+
+      const { data: job, error } = await supabase
+        .from('jobs')
+        .select(`
+          *,
+          companies(
+            company_name,
+            contact_person,
+            phone,
+            email,
+            province_id,
+            regency_id
+          )
+        `)
+        .eq('id', jobId)
         .single()
 
-      if (companies) {
-        // 회사 정보를 폼에 자동으로 채움
-        setFormData(prev => ({
-          ...prev,
-          company_name: companies.company_name || '',
-          contact_person: companies.contact_person || '',
-          phone: companies.phone || '',
-          email: companies.email || '',
-          province_id: companies.province_id || '',
-          regency_id: companies.regency_id || ''
-        }))
-      }
-    }
+      console.log('불러온 Job:', job)
+      console.log('Title:', job?.title)
+      console.log('Description:', job?.description)
 
-    loadExistingCompanyInfo()
-  }, [])
+      if (error) {
+        console.error('Error loading job:', error)
+        alert('채용 공고를 불러오는 중 오류가 발생했습니다.')
+        router.push('/my-posts')
+        return
+      }
+
+      if (job) {
+        setIsEditMode(true)
+
+        // DB에서 카테고리 정보 다시 가져오기
+        let parentCategoryId = ''
+        let subcategoryId = ''
+
+        if (job.category_id) {
+          const { data: categoryData } = await supabase
+            .from('categories')
+            .select('category_id, name, parent_category')
+            .eq('category_id', job.category_id)
+            .single()
+
+          console.log('카테고리 데이터:', categoryData)
+
+          if (categoryData) {
+            if (categoryData.parent_category) {
+              // 소분류
+              subcategoryId = categoryData.category_id
+
+              const { data: parentData } = await supabase
+                .from('categories')
+                .select('category_id')
+                .eq('name', categoryData.parent_category)
+                .is('parent_category', null)
+                .single()
+
+              if (parentData) {
+                parentCategoryId = parentData.category_id
+              }
+            } else {
+              // 대분류
+              parentCategoryId = categoryData.category_id
+            }
+          }
+        }
+
+        console.log('Parent Category ID:', parentCategoryId)
+        console.log('Subcategory ID:', subcategoryId)
+
+        const newFormData = {
+          company_name: job.companies?.company_name || '',
+          contact_person: job.companies?.contact_person || '',
+          phone: job.companies?.phone || '',
+          email: job.companies?.email || '',
+          title: job.title || '',
+          description: job.description || '',
+          province_id: job.companies?.province_id || job.province_id || '',
+          regency_id: job.companies?.regency_id || job.regency_id || '',
+          category_id: parentCategoryId,
+          subcategory_id: subcategoryId,
+          deadline: job.deadline ? new Date(job.deadline).toISOString().slice(0, 16) : '',
+        }
+
+        console.log('설정할 FormData:', newFormData)
+        setFormData(newFormData)
+        console.log('=== 데이터 로드 완료 ===')
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error)
+      alert('예상치 못한 오류가 발생했습니다.')
+      router.push('/my-posts')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 기존 회사 정보 자동 로드 (신규 등록 시에만)
+  const loadExistingCompanyInfo = async () => {
+    const supabase = createClient()
+
+    // 로그인 확인
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    // 기존 회사 정보 조회
+    const { data: companies } = await supabase
+      .from('companies')
+      .select('*')
+      .eq('user_id', user.id)
+      .limit(1)
+      .single()
+
+    if (companies) {
+      // 회사 정보를 폼에 자동으로 채움
+      setFormData(prev => ({
+        ...prev,
+        company_name: companies.company_name || '',
+        contact_person: companies.contact_person || '',
+        phone: companies.phone || '',
+        email: companies.email || '',
+        province_id: companies.province_id || '',
+        regency_id: companies.regency_id || ''
+      }))
+    }
+  }
 
   // No longer needed - data comes from server props
 
@@ -220,20 +331,37 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         status: 'active'
       }
 
-      // Insert job
-      const { data, error } = await supabase
-        .from('jobs')
-        .insert([jobData])
-        .select()
+      if (isEditMode && editId) {
+        // Update existing job
+        const { error } = await supabase
+          .from('jobs')
+          .update(jobData)
+          .eq('id', editId)
 
-      if (error) {
-        console.error('Error inserting job:', error)
-        alert('등록 중 오류가 발생했습니다: ' + error.message)
-        return
+        if (error) {
+          console.error('Error updating job:', error)
+          alert('수정 중 오류가 발생했습니다: ' + error.message)
+          return
+        }
+
+        alert('채용공고가 성공적으로 수정되었습니다!')
+        router.push('/my-posts')
+      } else {
+        // Insert new job
+        const { data, error } = await supabase
+          .from('jobs')
+          .insert([jobData])
+          .select()
+
+        if (error) {
+          console.error('Error inserting job:', error)
+          alert('등록 중 오류가 발생했습니다: ' + error.message)
+          return
+        }
+
+        alert('채용공고가 성공적으로 등록되었습니다!')
+        router.push('/jobs/hiring')
       }
-
-      alert('채용공고가 성공적으로 등록되었습니다!')
-      router.push('/jobs/hiring')
 
     } catch (error) {
       console.error('Unexpected error:', error)
@@ -446,7 +574,9 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     disabled={loading}
                     className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all disabled:opacity-50"
                   >
-                    {loading ? '등록 중...' : '채용공고 등록'}
+                    {loading
+                      ? (isEditMode ? '수정 중...' : '등록 중...')
+                      : (isEditMode ? '수정 완료' : '채용공고 등록')}
                   </button>
                 </div>
             </div>
