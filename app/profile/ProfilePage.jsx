@@ -133,7 +133,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
     const { data: existingProfile } = await supabase
       .from('candidate_profiles')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', 'temp-user-id')
       .single()
 
     if (existingProfile) {
@@ -204,97 +204,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
       .getPublicUrl(filePath)
 
     return data.publicUrl
-  }
-
-  // 로딩 중일 때
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#2c3e50] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">로딩 중...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // 로그인 안 되어 있을 때
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              로그인이 필요합니다
-            </h2>
-            <p className="text-gray-600 mb-8">
-              구직자 프로필을 등록하려면 로그인해주세요
-            </p>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => router.push('/login')}
-                className="w-full py-3 px-4 bg-[#2c3e50] text-white rounded-lg font-semibold hover:bg-[#34495e] transition-colors"
-              >
-                로그인
-              </button>
-              <button
-                onClick={() => router.push('/signup')}
-                className="w-full py-3 px-4 bg-white text-[#2c3e50] border-2 border-[#2c3e50] rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-              >
-                회원가입
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // 구직자가 아닐 때
-  if (userType !== 'job_seeker') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              구직자만 이용 가능합니다
-            </h2>
-            <p className="text-gray-600 mb-8">
-              구직 프로필은 구직자 회원만 등록할 수 있습니다.
-            </p>
-
-            {!userType ? (
-              <button
-                onClick={() => router.push('/select-user-type')}
-                className="w-full py-3 px-4 bg-[#2c3e50] text-white rounded-lg font-semibold hover:bg-[#34495e] transition-colors"
-              >
-                회원 유형 선택하기
-              </button>
-            ) : (
-              <button
-                onClick={() => router.push('/')}
-                className="w-full py-3 px-4 bg-[#2c3e50] text-white rounded-lg font-semibold hover:bg-[#34495e] transition-colors"
-              >
-                메인으로 돌아가기
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    )
   }
 
   const addSkill = () => {
@@ -463,7 +372,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
         const { data: newProfile, error: profileError } = await supabase
           .from('candidate_profiles')
           .insert([{
-            user_id: user.id,
+            user_id: 'temp-user-id',
             ...profile,
             resume_url: resumeUrl
           }])
