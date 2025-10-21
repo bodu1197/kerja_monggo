@@ -152,7 +152,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
       ...profile,
       skills: profile.skills.filter(s => s !== skill)
     })
-    setCertifications(updated)
   }
 
   const handleSubmit = async (e) => {
@@ -215,7 +214,6 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
           console.error('Profile update error:', updateError)
           alert('프로필 업데이트 중 오류가 발생했습니다.')
           return
-          console.error('Certification save error:', certError)
         }
       }
 
