@@ -514,17 +514,15 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
                   </label>
                 </div>
 
-            </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all disabled:opacity-50"
-                  >
-                    {loading ? '저장 중...' : '프로필 저장'}
-                  </button>
-                </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all disabled:opacity-50"
+                >
+                  {loading ? '저장 중...' : '프로필 저장'}
+                </button>
+              </div>
             </div>
           </form>
         </div>
