@@ -62,6 +62,40 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     }
   }, [])
 
+  // 기존 회사 정보 자동 로드
+  useEffect(() => {
+    const loadExistingCompanyInfo = async () => {
+      const supabase = createClient()
+
+      // 로그인 확인
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // 기존 회사 정보 조회
+      const { data: companies } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single()
+
+      if (companies) {
+        // 회사 정보를 폼에 자동으로 채움
+        setFormData(prev => ({
+          ...prev,
+          company_name: companies.company_name || '',
+          contact_person: companies.contact_person || '',
+          phone: companies.phone || '',
+          email: companies.email || '',
+          province_id: companies.province_id || '',
+          regency_id: companies.regency_id || ''
+        }))
+      }
+    }
+
+    loadExistingCompanyInfo()
+  }, [])
+
   // No longer needed - data comes from server props
 
   const loadRegencies = async (provinceId) => {
