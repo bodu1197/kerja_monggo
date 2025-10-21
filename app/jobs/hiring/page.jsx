@@ -31,6 +31,7 @@ export default async function Page() {
     .from('jobs')
     .select(`
       *,
+      companies(company_name, contact_person, phone, email),
       province:provinces(province_name),
       regency:regencies(regency_name),
       category:categories!job_posts_category_id_fkey(name),
@@ -45,6 +46,10 @@ export default async function Page() {
   // 데이터 변환
   const transformedJobs = jobs?.map(job => ({
     ...job,
+    company_name: job.companies?.company_name,
+    contact_person: job.companies?.contact_person,
+    phone: job.companies?.phone,
+    email: job.companies?.email,
     province_name: job.province?.province_name,
     regency_name: job.regency?.regency_name,
     category_name: job.category?.name,

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Footer from '../../../components/Footer'
-import { IoLocationSharp, IoCall, IoBriefcase, IoTime, IoSchool, IoCash, IoArrowBack, IoCalendar } from 'react-icons/io5'
+import { IoLocationSharp, IoCall, IoBriefcase, IoTime, IoSchool, IoCash, IoArrowBack, IoCalendar, IoPerson, IoMail } from 'react-icons/io5'
 import { FaWhatsapp, FaEnvelope, FaShareAlt, FaFlag } from 'react-icons/fa'
 
 export default function JobDetailPage({ job }) {
@@ -235,6 +235,33 @@ export default function JobDetailPage({ job }) {
                     위치
                   </h3>
                   <p className="text-base text-gray-900">{job.province_name}, {job.regency_name}</p>
+                </div>
+              )}
+              {job.contact_person && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <IoPerson className="mr-1" />
+                    담당자
+                  </h3>
+                  <p className="text-base text-gray-900">{job.contact_person}</p>
+                </div>
+              )}
+              {job.phone && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <IoCall className="mr-1" />
+                    연락처
+                  </h3>
+                  <p className="text-base text-gray-900">{job.phone}</p>
+                </div>
+              )}
+              {job.email && (
+                <div className="md:col-span-2">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <IoMail className="mr-1" />
+                    이메일
+                  </h3>
+                  <p className="text-base text-gray-900">{job.email}</p>
                 </div>
               )}
             </div>

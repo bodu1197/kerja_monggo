@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { IoLocationSharp, IoBriefcase, IoCalendar, IoBusinessSharp, IoPerson } from 'react-icons/io5'
+import { IoLocationSharp, IoBriefcase, IoCalendar, IoBusinessSharp, IoPerson, IoCall, IoMail } from 'react-icons/io5'
 
 export default function ProductCard({ job }) {
   const {
@@ -13,6 +13,9 @@ export default function ProductCard({ job }) {
     category_name,
     subcategory_name,
     company_name,
+    contact_person,
+    phone,
+    email,
     deadline,
     created_at
   } = job
@@ -72,6 +75,30 @@ export default function ProductCard({ job }) {
               {daysRemaining === 0 && ' (오늘 마감)'}
               {daysRemaining < 0 && ' (마감됨)'}
             </span>
+          </div>
+        )}
+
+        {/* 담당자 정보 (구인 공고인 경우) */}
+        {isJobPost && (contact_person || phone || email) && (
+          <div className="mt-3 pt-3 border-t border-gray-800 space-y-1">
+            {contact_person && (
+              <div className="flex items-center text-xs text-gray-400">
+                <IoPerson className="mr-2 text-primary flex-shrink-0" />
+                <span className="font-medium">담당자: {contact_person}</span>
+              </div>
+            )}
+            {phone && (
+              <div className="flex items-center text-xs text-gray-400">
+                <IoCall className="mr-2 text-primary flex-shrink-0" />
+                <span>연락처: {phone}</span>
+              </div>
+            )}
+            {email && (
+              <div className="flex items-center text-xs text-gray-400">
+                <IoMail className="mr-2 text-primary flex-shrink-0" />
+                <span className="truncate">이메일: {email}</span>
+              </div>
+            )}
           </div>
         )}
 

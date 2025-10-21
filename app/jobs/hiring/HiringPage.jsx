@@ -75,6 +75,7 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
         .from('jobs')
         .select(`
           *,
+          companies(company_name, contact_person, phone, email),
           province:provinces(province_name),
           regency:regencies(regency_name),
           category:categories!job_posts_category_id_fkey(name),
@@ -91,6 +92,10 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
 
       const transformedJobs = data?.map(job => ({
         ...job,
+        company_name: job.companies?.company_name,
+        contact_person: job.companies?.contact_person,
+        phone: job.companies?.phone,
+        email: job.companies?.email,
         province_name: job.province?.province_name,
         regency_name: job.regency?.regency_name,
         category_name: job.category?.name,
