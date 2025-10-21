@@ -123,7 +123,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
       let { data: companies, error: companyError } = await supabase
         .from('companies')
         .select('id')
-        .eq('user_id', 'temp-user-id')
+        .eq('user_id', user.id)
         .limit(1)
 
       let companyId
@@ -133,7 +133,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         const { data: newCompany, error: createError } = await supabase
           .from('companies')
           .insert([{
-            user_id: 'temp-user-id',
+            user_id: user.id,
             company_name: formData.company_name,
             contact_person: formData.contact_person,
             phone: formData.phone,

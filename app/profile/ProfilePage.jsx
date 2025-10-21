@@ -93,7 +93,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
     const { data: existingProfile } = await supabase
       .from('candidate_profiles')
       .select('*')
-      .eq('user_id', 'temp-user-id')
+      .eq('user_id', user.id)
       .single()
 
     if (existingProfile) {
@@ -168,7 +168,7 @@ export default function ProfilePage({ initialProvinces = [], initialCategories =
         const { data: newProfile, error: profileError } = await supabase
           .from('candidate_profiles')
           .insert([{
-            user_id: 'temp-user-id',
+            user_id: user.id,
             ...profile,
             resume_url: resumeUrl
           }])
