@@ -46,12 +46,6 @@ export default function LoginPage() {
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           로그인
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          계정이 없으신가요?{' '}
-          <Link href="/signup" className="font-medium text-[#2c3e50] hover:underline">
-            회원가입
-          </Link>
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -126,6 +120,19 @@ export default function LoginPage() {
                 구글로 로그인
               </button>
             </div>
+          </div>
+
+          {/* 회원가입 안내 - 크고 명확하게 */}
+          <div className="mt-6 text-center">
+            <p className="text-base text-gray-700 mb-3">
+              아직 계정이 없으신가요?
+            </p>
+            <Link
+              href="/signup"
+              className="block w-full py-3 px-4 bg-white text-[#2c3e50] border-2 border-[#2c3e50] rounded-lg font-bold text-lg hover:bg-gray-50 transition-colors"
+            >
+              회원가입하기
+            </Link>
           </div>
         </div>
       </div>
