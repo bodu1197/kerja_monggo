@@ -19,9 +19,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     contact_person: '',
     phone: '',
     email: '',
-    business_registration: '',
-    company_size: '',
-    industry: '',
 
     // 채용 공고 정보
     title: '',
@@ -210,9 +207,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
             contact_person: formData.contact_person,
             phone: formData.phone,
             email: formData.email,
-            business_registration: formData.business_registration,
-            company_size: formData.company_size,
-            industry: formData.industry,
             regency_id: formData.regency_id,
             province_id: formData.province_id,
             benefits: formData.benefits // 회사 복리후생
@@ -236,9 +230,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
           contact_person: formData.contact_person,
           phone: formData.phone,
           email: formData.email,
-          business_registration: formData.business_registration,
-          company_size: formData.company_size,
-          industry: formData.industry,
           regency_id: formData.regency_id,
           province_id: formData.province_id,
           benefits: formData.benefits
@@ -393,55 +384,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
                     required
                   />
-                </div>
-
-                {/* 사업자등록번호 */}
-                <div>
-                  <label htmlFor="business_registration" className="block text-sm font-semibold text-slate-700 mb-2">
-                    사업자등록번호 (NPWP/NIB)
-                  </label>
-                  <input
-                    type="text"
-                    id="business_registration"
-                    value={formData.business_registration}
-                    onChange={(e) => setFormData({...formData, business_registration: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                  />
-                </div>
-
-                {/* 회사 규모 및 업종 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="company_size" className="block text-sm font-semibold text-slate-700 mb-2">
-                      회사 규모
-                    </label>
-                    <select
-                      id="company_size"
-                      value={formData.company_size}
-                      onChange={(e) => setFormData({...formData, company_size: e.target.value})}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                    >
-                      <option value="">선택</option>
-                      <option value="1-10">1-10명</option>
-                      <option value="11-50">11-50명</option>
-                      <option value="51-200">51-200명</option>
-                      <option value="201-500">201-500명</option>
-                      <option value="500+">500명 이상</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="industry" className="block text-sm font-semibold text-slate-700 mb-2">
-                      업종
-                    </label>
-                    <input
-                      type="text"
-                      id="industry"
-                      value={formData.industry}
-                      onChange={(e) => setFormData({...formData, industry: e.target.value})}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                      placeholder="예: IT, 제조업"
-                    />
-                  </div>
                 </div>
 
                 <div className="flex justify-end">
