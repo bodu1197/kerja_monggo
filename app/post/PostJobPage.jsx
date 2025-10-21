@@ -22,9 +22,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     business_registration: '',
     company_size: '',
     industry: '',
-    website: '',
-    address: '',
-    company_description: '',
 
     // 채용 공고 정보
     title: '',
@@ -47,8 +44,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     deadline: '',
   })
 
-  const [logoFile, setLogoFile] = useState(null)
-  const [logoPreview, setLogoPreview] = useState(null)
   const [skillInput, setSkillInput] = useState('')
   const [benefitInput, setBenefitInput] = useState('')
 
@@ -117,45 +112,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     if (subcategoriesData) {
       setSubcategories(subcategoriesData)
     }
-  }
-
-  const handleLogoChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('파일 크기는 5MB 이하여야 합니다.')
-        return
-      }
-
-      setLogoFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setLogoPreview(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const uploadLogo = async (file) => {
-    const supabase = createClient()
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Math.random()}.${fileExt}`
-    const filePath = `logos/${fileName}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('company-assets')
-      .upload(filePath, file)
-
-    if (uploadError) {
-      console.error('Logo upload error:', uploadError)
-      return null
-    }
-
-    const { data } = supabase.storage
-      .from('company-assets')
-      .getPublicUrl(filePath)
-
-    return data.publicUrl
   }
 
   const addSkill = () => {
@@ -235,17 +191,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         return
       }
 
-      // Upload logo if provided
-      let logoUrl = null
-      if (logoFile) {
-        logoUrl = await uploadLogo(logoFile)
-        if (!logoUrl) {
-          alert('로고 업로드 중 오류가 발생했습니다.')
-          setLoading(false)
-          return
-        }
-      }
-
       // Check if user has a company profile
       let { data: companies, error: companyError } = await supabase
         .from('companies')
@@ -268,12 +213,8 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
             business_registration: formData.business_registration,
             company_size: formData.company_size,
             industry: formData.industry,
-            website: formData.website,
-            address: formData.address,
             regency_id: formData.regency_id,
             province_id: formData.province_id,
-            logo_url: logoUrl,
-            description: formData.company_description || '회사 소개를 추가해주세요.',
             benefits: formData.benefits // 회사 복리후생
           }])
           .select()
@@ -298,16 +239,9 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
           business_registration: formData.business_registration,
           company_size: formData.company_size,
           industry: formData.industry,
-          website: formData.website,
-          address: formData.address,
           regency_id: formData.regency_id,
           province_id: formData.province_id,
-          description: formData.company_description,
           benefits: formData.benefits
-        }
-
-        if (logoUrl) {
-          updateData.logo_url = logoUrl
         }
 
         const { error: updateError } = await supabase
@@ -506,71 +440,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                       onChange={(e) => setFormData({...formData, industry: e.target.value})}
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
                       placeholder="예: IT, 제조업"
-                    />
-                  </div>
-                </div>
-
-                {/* 웹사이트 */}
-                <div>
-                  <label htmlFor="website" className="block text-sm font-semibold text-slate-700 mb-2">
-                    웹사이트
-                  </label>
-                  <input
-                    type="url"
-                    id="website"
-                    value={formData.website}
-                    onChange={(e) => setFormData({...formData, website: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                    placeholder="https://"
-                  />
-                </div>
-
-                {/* 주소 */}
-                <div>
-                  <label htmlFor="address" className="block text-sm font-semibold text-slate-700 mb-2">
-                    주소
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                  />
-                </div>
-
-                {/* 회사 소개 */}
-                <div>
-                  <label htmlFor="company_description" className="block text-sm font-semibold text-slate-700 mb-2">
-                    회사 소개
-                  </label>
-                  <textarea
-                    id="company_description"
-                    value={formData.company_description}
-                    onChange={(e) => setFormData({...formData, company_description: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none h-24"
-                    placeholder="회사에 대한 간략한 소개"
-                  />
-                </div>
-
-                {/* 로고 업로드 */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    회사 로고
-                  </label>
-                  <div className="flex items-center gap-4">
-                    {logoPreview && (
-                      <img
-                        src={logoPreview}
-                        alt="로고 미리보기"
-                        className="w-20 h-20 object-contain border rounded"
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                      className="flex-1"
                     />
                   </div>
                 </div>
