@@ -4,38 +4,49 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+const initialFormData = {
+  company_name: '',
+  contact_person: '',
+  phone: '',
+  email: '',
+  title: '',
+  description: '',
+  province_id: '',
+  regency_id: '',
+  category_id: '',
+  subcategory_id: '',
+  deadline: '',
+}
+
 export default function PostJobPage({ initialProvinces = [], initialCategories = [] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
   const [loading, setLoading] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(!!editId)
   const [provinces] = useState(initialProvinces)
   const [regencies, setRegencies] = useState([])
   const [categories] = useState(initialCategories)
   const [subcategories, setSubcategories] = useState([])
+  const [formData, setFormData] = useState(initialFormData)
 
-  const [formData, setFormData] = useState({
-    // 회사 정보
-    company_name: '',
-    contact_person: '',
-    phone: '',
-    email: '',
+  useEffect(() => {
+    const defaultDeadline = new Date()
+    defaultDeadline.setDate(defaultDeadline.getDate() + 30)
+    setFormData(prev => ({ ...prev, deadline: defaultDeadline.toISOString().slice(0, 16) }))
+  }, [])
 
-    // 채용 공고 정보
-    title: '',
-    description: '',
-    province_id: '',
-    regency_id: '',
-    category_id: '',
-    subcategory_id: '',
-    deadline: '',
-  })
+  useEffect(() => {
+    if (editId) {
+      setIsEditMode(true)
+      loadExistingJobData(editId)
+    } else {
+      setIsEditMode(false)
+      setFormData(initialFormData)
+      loadExistingCompanyInfo()
+    }
+  }, [editId])
 
-  // Initial data already loaded from server via props
-  // No need to load again
-
-  // Load regencies when province changes
   useEffect(() => {
     if (formData.province_id) {
       loadRegencies(formData.province_id)
@@ -44,7 +55,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     }
   }, [formData.province_id])
 
-  // Load subcategories when category changes
   useEffect(() => {
     if (formData.category_id && categories.length > 0) {
       loadSubcategories(formData.category_id)
@@ -53,35 +63,11 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     }
   }, [formData.category_id, categories])
 
-  // 마감일 기본값 설정 (30일 후)
-  useEffect(() => {
-    if (!formData.deadline) {
-      const defaultDeadline = new Date()
-      defaultDeadline.setDate(defaultDeadline.getDate() + 30)
-      setFormData(prev => ({
-        ...prev,
-        deadline: defaultDeadline.toISOString().slice(0, 16)
-      }))
-    }
-  }, [])
-
-  // 수정 모드: 기존 채용 공고 데이터 로드
-  useEffect(() => {
-    if (editId) {
-      loadExistingJobData(editId)
-    } else {
-      loadExistingCompanyInfo()
-    }
-  }, [editId])
-
   const loadExistingJobData = async (jobId) => {
     const supabase = createClient()
     setLoading(true)
 
     try {
-      console.log('=== 수정 모드 데이터 로드 시작 ===')
-      console.log('Job ID:', jobId)
-
       const { data: job, error } = await supabase
         .from('jobs')
         .select(`
@@ -98,58 +84,13 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
         .eq('id', jobId)
         .single()
 
-      console.log('불러온 Job:', job)
-      console.log('Title:', job?.title)
-      console.log('Description:', job?.description)
-
       if (error) {
-        console.error('Error loading job:', error)
-        alert('채용 공고를 불러오는 중 오류가 발생했습니다.')
+        alert('Gagal memuat data pekerjaan.')
         router.push('/my-posts')
         return
       }
 
       if (job) {
-        setIsEditMode(true)
-
-        // DB에서 카테고리 정보 다시 가져오기
-        let parentCategoryId = ''
-        let subcategoryId = ''
-
-        if (job.category_id) {
-          const { data: categoryData } = await supabase
-            .from('categories')
-            .select('category_id, name, parent_category')
-            .eq('category_id', job.category_id)
-            .single()
-
-          console.log('카테고리 데이터:', categoryData)
-
-          if (categoryData) {
-            if (categoryData.parent_category) {
-              // 소분류
-              subcategoryId = categoryData.category_id
-
-              const { data: parentData } = await supabase
-                .from('categories')
-                .select('category_id')
-                .eq('name', categoryData.parent_category)
-                .is('parent_category', null)
-                .single()
-
-              if (parentData) {
-                parentCategoryId = parentData.category_id
-              }
-            } else {
-              // 대분류
-              parentCategoryId = categoryData.category_id
-            }
-          }
-        }
-
-        console.log('Parent Category ID:', parentCategoryId)
-        console.log('Subcategory ID:', subcategoryId)
-
         const newFormData = {
           company_name: job.companies?.company_name || '',
           contact_person: job.companies?.contact_person || '',
@@ -157,35 +98,28 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
           email: job.companies?.email || '',
           title: job.title || '',
           description: job.description || '',
-          province_id: job.companies?.province_id || job.province_id || '',
-          regency_id: job.companies?.regency_id || job.regency_id || '',
-          category_id: parentCategoryId,
-          subcategory_id: subcategoryId,
+          province_id: job.province_id || '',
+          regency_id: job.regency_id || '',
+          category_id: job.category_id || '',
+          subcategory_id: job.subcategory_id || '',
           deadline: job.deadline ? new Date(job.deadline).toISOString().slice(0, 16) : '',
         }
-
-        console.log('설정할 FormData:', newFormData)
         setFormData(newFormData)
-        console.log('=== 데이터 로드 완료 ===')
       }
     } catch (error) {
-      console.error('Unexpected error:', error)
-      alert('예상치 못한 오류가 발생했습니다.')
+      alert('Terjadi kesalahan tak terduga.')
       router.push('/my-posts')
     } finally {
       setLoading(false)
     }
   }
 
-  // 기존 회사 정보 자동 로드 (신규 등록 시에만)
   const loadExistingCompanyInfo = async () => {
     const supabase = createClient()
 
-    // 로그인 확인
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // 기존 회사 정보 조회
     const { data: companies } = await supabase
       .from('companies')
       .select('*')
@@ -194,7 +128,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
       .single()
 
     if (companies) {
-      // 회사 정보를 폼에 자동으로 채움
       setFormData(prev => ({
         ...prev,
         company_name: companies.company_name || '',
@@ -206,8 +139,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
       }))
     }
   }
-
-  // No longer needed - data comes from server props
 
   const loadRegencies = async (provinceId) => {
     const supabase = createClient()
@@ -244,9 +175,8 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // 최종 검증
     if (!formData.deadline) {
-      alert('마감기한을 선택해주세요.')
+      alert('Silakan pilih batas waktu.')
       return
     }
 
@@ -255,16 +185,14 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
     try {
       const supabase = createClient()
 
-      // Check if user is authenticated
       const { data: { user }, error: authError } = await supabase.auth.getUser()
 
       if (authError || !user) {
-        alert('로그인이 필요합니다.')
+        alert('Login diperlukan.')
         router.push('/login')
         return
       }
 
-      // Check if user has a company profile
       let { data: companies, error: companyError } = await supabase
         .from('companies')
         .select('id')
@@ -274,7 +202,6 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
       let companyId
 
       if (!companies || companies.length === 0) {
-        // Create a new company
         const { data: newCompany, error: createError } = await supabase
           .from('companies')
           .insert([{
@@ -290,14 +217,12 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
           .single()
 
         if (createError) {
-          console.error('Error creating company:', createError)
-          alert('회사 프로필 생성 중 오류가 발생했습니다.')
+          alert('Gagal membuat profil perusahaan.')
           return
         }
 
         companyId = newCompany.id
       } else {
-        // Update existing company
         companyId = companies[0].id
 
         const updateData = {
@@ -315,11 +240,9 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
           .eq('id', companyId)
 
         if (updateError) {
-          console.error('Error updating company:', updateError)
         }
       }
 
-      // Prepare job data
       const jobData = {
         company_id: companyId,
         title: formData.title,
@@ -332,57 +255,51 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
       }
 
       if (isEditMode && editId) {
-        // Update existing job
         const { error } = await supabase
           .from('jobs')
           .update(jobData)
           .eq('id', editId)
 
         if (error) {
-          console.error('Error updating job:', error)
-          alert('수정 중 오류가 발생했습니다: ' + error.message)
+          alert('Gagal memperbarui pekerjaan: ' + error.message)
           return
         }
 
-        alert('채용공고가 성공적으로 수정되었습니다!')
+        alert('Pekerjaan berhasil diperbarui!')
         router.push('/my-posts')
       } else {
-        // Insert new job
         const { data, error } = await supabase
           .from('jobs')
           .insert([jobData])
           .select()
 
         if (error) {
-          console.error('Error inserting job:', error)
-          alert('등록 중 오류가 발생했습니다: ' + error.message)
+          alert('Gagal memasukkan pekerjaan: ' + error.message)
           return
         }
 
-        alert('채용공고가 성공적으로 등록되었습니다!')
+        alert('Pekerjaan berhasil diposting!')
         router.push('/jobs/hiring')
       }
 
     } catch (error) {
-      console.error('Unexpected error:', error)
-      alert('예상치 못한 오류가 발생했습니다.')
+      alert('Terjadi kesalahan tak terduga.')
     } finally {
       setLoading(false)
     }
   }
 
-  // 권한 체크: 로딩 중
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-[800px] mx-auto px-5">
         <div className="bg-white rounded-xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* 회사 정보 */}
+            {/* Company Information */}
             <div className="space-y-6">
-                {/* 회사명 */}
+                {/* Company Name */}
                 <div>
                   <label htmlFor="company_name" className="block text-sm font-semibold text-slate-700 mb-2">
-                    회사명 <span className="text-red-500">*</span>
+                    Nama Perusahaan <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -394,11 +311,11 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                   />
                 </div>
 
-                {/* 담당자 정보 */}
+                {/* Contact Person */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="contact_person" className="block text-sm font-semibold text-slate-700 mb-2">
-                      담당자명 <span className="text-red-500">*</span>
+                      Nama Kontak <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -411,7 +328,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                   </div>
                   <div>
                     <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">
-                      연락처 <span className="text-red-500">*</span>
+                      Telepon <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -424,10 +341,10 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                   </div>
                 </div>
 
-                {/* 이메일 */}
+                {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
-                    이메일 <span className="text-red-500">*</span>
+                    Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -440,12 +357,12 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                 </div>
             </div>
 
-            {/* 채용 정보 */}
+            {/* Job Information */}
             <div className="space-y-6">
-                {/* 제목 */}
+                {/* Title */}
                 <div>
                   <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
-                    채용 제목 <span className="text-red-500">*</span>
+                    Judul Pekerjaan <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -453,33 +370,33 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
-                    placeholder="예: Senior Software Developer 채용"
+                    placeholder="Contoh: Pengembang Perangkat Lunak Senior"
                     required
                   />
                 </div>
 
-                {/* 상세 설명 */}
+                {/* Description */}
                 <div>
                   <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">
-                    상세 설명 <span className="text-red-500">*</span> (최소 50자)
+                    Deskripsi <span className="text-red-500">*</span> (minimal 50 karakter)
                   </label>
                   <textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none h-32"
-                    placeholder="업무 환경, 회사 문화, 성장 기회 등을 자세히 설명해주세요..."
+                    placeholder="Jelaskan lingkungan kerja, budaya perusahaan, peluang pertumbuhan, dll..."
                     required
                   />
                   <div className="text-sm text-gray-500 mt-1">
-                    {formData.description.length}/50자
+                    {formData.description.length}/50 karakter
                   </div>
                 </div>
 
 
-                {/* 지역 선택 */}
+                {/* Location */}
                 <div>
-                  <div className="block text-sm font-semibold text-slate-700 mb-2">근무 지역</div>
+                  <div className="block text-sm font-semibold text-slate-700 mb-2">Lokasi Kerja</div>
                   <div className="space-y-3">
                     <select
                       value={formData.province_id}
@@ -487,7 +404,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
                       required
                     >
-                      <option value="">시/도 선택</option>
+                      <option value="">Pilih Provinsi</option>
                       {provinces.map((province) => (
                         <option key={province.province_id} value={province.province_id}>
                           {province.province_name}
@@ -502,7 +419,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                       disabled={!formData.province_id}
                       required
                     >
-                      <option value="">시/군/구 선택</option>
+                      <option value="">Pilih Kota/Kabupaten</option>
                       {regencies.map((regency) => (
                         <option key={regency.regency_id} value={regency.regency_id}>
                           {regency.regency_name}
@@ -513,11 +430,11 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                 </div>
             </div>
 
-            {/* 상세 조건 */}
+            {/* Detailed Conditions */}
             <div className="space-y-6">
-                {/* 직업 카테고리 */}
+                {/* Job Category */}
                 <div>
-                  <div className="block text-sm font-semibold text-slate-700 mb-2">직종</div>
+                  <div className="block text-sm font-semibold text-slate-700 mb-2">Kategori Pekerjaan</div>
                   <div className="space-y-3">
                     <select
                       value={formData.category_id}
@@ -525,7 +442,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
                       required
                     >
-                      <option value="">대분류 선택</option>
+                      <option value="">Pilih Kategori Utama</option>
                       {categories.map((category) => (
                         <option key={category.category_id} value={category.category_id}>
                           {category.icon} {category.name}
@@ -539,7 +456,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-slate-700 focus:outline-none"
                       disabled={!formData.category_id}
                     >
-                      <option value="">소분류 선택 (선택사항)</option>
+                      <option value="">Pilih Sub-kategori (opsional)</option>
                       {subcategories.map((subcategory) => (
                         <option key={subcategory.category_id} value={subcategory.category_id}>
                           {subcategory.icon} {subcategory.name}
@@ -549,10 +466,10 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                   </div>
                 </div>
 
-                {/* 마감기한 */}
+                {/* Deadline */}
                 <div>
                   <label htmlFor="deadline" className="block text-sm font-semibold text-slate-700 mb-2">
-                    지원 마감일 <span className="text-red-500">*</span>
+                    Batas Waktu Lamaran <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -564,7 +481,7 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     min={new Date().toISOString().slice(0, 16)}
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    기본값: 30일 후 | 최대 90일까지 설정 가능
+                    Default: 30 hari dari sekarang | Bisa diatur hingga 90 hari
                   </p>
                 </div>
 
@@ -575,8 +492,8 @@ export default function PostJobPage({ initialProvinces = [], initialCategories =
                     className="px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all disabled:opacity-50"
                   >
                     {loading
-                      ? (isEditMode ? '수정 중...' : '등록 중...')
-                      : (isEditMode ? '수정 완료' : '채용공고 등록')}
+                      ? (isEditMode ? 'Memperbarui...' : 'Memposting...')
+                      : (isEditMode ? 'Perbarui Pekerjaan' : 'Posting Pekerjaan')}
                   </button>
                 </div>
             </div>

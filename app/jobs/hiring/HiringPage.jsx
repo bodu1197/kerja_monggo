@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import JobCard from '../../components/JobCard'
 import LoadingState from '../../components/LoadingState'
 import Footer from '../../components/Footer'
@@ -12,10 +13,6 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
   const [categories] = useState(initialCategories)
   const [jobs, setJobs] = useState(initialJobs)
   const [loading, setLoading] = useState(false)
-
-  console.log('HiringPage - provinces:', provinces?.length, provinces)
-  console.log('HiringPage - categories:', categories?.length, categories)
-  console.log('HiringPage - jobs:', jobs?.length, jobs)
 
   const [selectedProvince, setSelectedProvince] = useState('')
   const [selectedRegency, setSelectedRegency] = useState('')
@@ -113,9 +110,11 @@ export default function HiringPage({ initialProvinces, initialCategories, initia
     <main className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-primary">Lowongan Kerja</h1>
-        <button className="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition">
-          Pasang Lowongan
-        </button>
+        <Link href="/post">
+          <a className="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition">
+            Pasang Lowongan
+          </a>
+        </Link>
       </div>
 
       {/* 드롭다운 필터 */}
